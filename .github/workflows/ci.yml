@@ -1,0 +1,46 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 与项目声明的 Python 3.10+ 保持一致，覆盖主流版本
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Run tests with coverage
+        # 测试全部隔离到临时目录，不依赖 .env、不调用真实 DeepSeek 接口
+        run: |
+          pytest tests/ -q \
+            --cov=parsing --cov=rules --cov=store --cov=errors --cov=llm \
+            --cov-report=term-missing --cov-report=xml
+
+      - name: Upload coverage report
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml

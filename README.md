@@ -1,6 +1,6 @@
 # Prompt Assistant
 
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![macOS](https://img.shields.io/badge/macOS-supported-1f6feb)](#macos) [![Windows](https://img.shields.io/badge/Windows-supported-0078D4)](#windows)
+[![tests](https://github.com/zjy053231-crypto/prompt-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/zjy053231-crypto/prompt-assistant/actions/workflows/ci.yml) [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![macOS](https://img.shields.io/badge/macOS-supported-1f6feb)](#macos) [![Windows](https://img.shields.io/badge/Windows-supported-0078D4)](#windows)
 
 > 画面之前 · 畫面之前 · Before the image
 
@@ -175,6 +175,29 @@ curl -X POST http://localhost:8000/api/rewrite \
 ```
 
 流式接口用 `curl -N -X POST .../api/stream` 看事件序列。回归时覆盖：空提示词、未知模型、四个模型 × 两种比例、缓存命中、历史读写，以及断网 / 错 key / 429 三类错误分支。
+
+## 开发与测试
+
+自动化测试覆盖四个核心逻辑，且全部隔离在临时目录——不会碰真实的 `data/studio.db`、`logs/`，也不需要 `.env` 或联网调 DeepSeek：
+
+| 文件 | 覆盖内容 |
+|---|---|
+| `test_parsing.py` | 四段状态机；把标记拆成 1/2/3/5/7… 字符逐块喂入，断言流式结果与整段解析完全一致（防漏字 / 丢字段）；meta 只发一次；非格式输出降级不丢内容 |
+| `test_rules.py` | 按 mtime 热加载；视频/图片模型走不同输出格式；未知模型报错 |
+| `test_store.py` | 缓存命中 / 过期 / 关闭 / 坏数据降级；历史增删查；缓存 key 只依赖业务字段 |
+| `test_llm.py` | 并发上限、幂等释放、僵尸槽位按 idle / 绝对超时自愈（之前「跑不动」故障的根因） |
+| `test_errors.py` | 上游状态码 → 中文提示；确保 key 和原始报文不泄漏到界面 |
+| `test_api.py` | 接口冒烟：校验分支、health、options、prod 下禁止热重载 |
+
+本地运行：
+
+```bash
+pip install -r requirements-dev.txt
+pytest -q
+pytest --cov=parsing --cov=rules --cov=store --cov=llm --cov-report=term-missing
+```
+
+GitHub Actions 在每次 push / PR 时于 Python 3.10 / 3.11 / 3.12 三个版本上跑同一套测试，README 顶部的 `tests` 徽章就是这个工作流的状态。
 
 ## 已知局限
 

@@ -1,0 +1,5 @@
+# 运行时依赖见 requirements.txt；本文件只放测试与覆盖率工具。
+-r requirements.txt
+pytest>=7.4,<9
+pytest-cov>=4.1,<7
+httpx>=0.24,<1
