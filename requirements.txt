@@ -1,4 +1,6 @@
-fastapi
-uvicorn
-requests
-python-dotenv
+# 锁定大版本，允许次版本更新：既避免未来破坏性升级，又能拿到安全补丁。
+# Python 3.10+
+fastapi>=0.100,<1.0
+uvicorn>=0.23,<1.0
+requests>=2.31,<3.0
+python-dotenv>=1.0,<2.0

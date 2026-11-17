@@ -4,6 +4,23 @@
 
 写下所想，其余由它铺陈
 
+### 预览
+
+![改写工作台首屏](docs/screenshots/home.png)
+
+<details>
+<summary>更多界面</summary>
+
+结果面板（戏份判定 / 正文 / 改动说明）：
+
+![改写结果面板](docs/screenshots/result.png)
+
+移动端（窄屏单列）：
+
+![移动端界面](docs/screenshots/mobile.png)
+
+</details>
+
 | | 一句话简介 | 短句 |
 |---|---|---|
 | 简中 | 写下所想，其余由它铺陈 | 画面之前 |
@@ -54,11 +71,14 @@ static/
   css/app.css        布局与组件（固定尺寸基线）
   css/responsive.css 垂直自适应：桌面/笔记本按视口高度 clamp 压紧 padding / 间距 / 最小高度，大屏取上限不变；中等宽度左右栏等分减少参数换行。删掉 link 即回到固定尺寸版
   css/atmosphere.css 材质层：环境光 / 细栅格 / 颗粒 / 卡片景深 / 渐变描边；删掉 index.html 里这条 link 即可整块退回
-  css/motion.css     动态光场层：两团柔光缓慢呼吸 + 状态灯呼吸；默认开启，尊重系统减少动效；删掉 link 即回到全静止
+  css/motion.css     动态层：两团柔光呼吸（13s / 17s）+ 62 个粒子（气泡 / 陨尘 / 流星 / 水波，由 app.js 随机注入）+ 氛围图 Ken Burns 推拉（38s）+ 状态灯呼吸；粒子在文字图层之下，只动 transform/opacity 走 GPU；尊重系统减少动效，删掉 link 即回到全静止
   js/api.js          请求层（SSE / 取消 / 错误归一化）
   js/ui.js           渲染工具（高亮 / 复制 / 图标）
   js/app.js          主逻辑与状态
   backgrounds/       可选氛围背景（默认关闭）
+docs/
+  brand-copy.md      三语文案规范
+  screenshots/       README 预览图（首屏 / 结果 / 移动端）
 data/studio.db       自动生成的本地数据库
 logs/studio.log      自动生成的运行日志
 ```
