@@ -1,2 +1,7 @@
 # Windows 批处理必须按字节保留 CRLF，否则 cmd.exe 的 goto / 块解析可能失效
 *.cmd -text
+
+# 语言统计只算核心实现，避免前端资源体积把主语言显示成 CSS
+static/css/*.css linguist-detectable=false
+static/js/*.js linguist-detectable=false
+static/index.html linguist-detectable=false

@@ -1,10 +1,12 @@
 # Prompt Assistant
 
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![macOS](https://img.shields.io/badge/macOS-supported-1f6feb)](#macos) [![Windows](https://img.shields.io/badge/Windows-supported-0078D4)](#windows)
+
 > 画面之前 · 畫面之前 · Before the image
 
 写下所想，其余由它铺陈
 
-一个本地运行的工作台：把一句模糊的描述整理成模型可用的分镜、光线与细节。戏份由模型推断，不向用户提问；想微调时才用结果区的「换个戏份」。
+基于 DeepSeek 的本地提示词工作台：把一句模糊的描述整理成模型可用的分镜、镜头运动、光线与声音提示，面向 Seedance / MiniMax H3 / 豆包 Seedream / GPT Image 等视频与图片模型。戏份由模型推断，不向用户提问；想微调时才用结果区的「换个戏份」。FastAPI + SSE 流式输出 + SQLite 本地历史，一键启动。
 
 同时支持 **macOS** 和 **Windows**：两边都有开箱即用的启动入口，自动建环境、引导填 key、清理卡死的旧服务，并在页面真正就绪后才打开浏览器。
 
@@ -14,7 +16,7 @@
 
 A local workspace that turns one rough line into a model-ready prompt: shot sizes, camera movement, lighting and sound cues, plus a persistent style lock. The scene type is inferred from what you write — never asked.
 
-Targets Seedance 2.5 and MiniMax H3 (video), Doubao / Seedream and GPT Image (image). Rewriting is done by DeepSeek; the per-model rules live in `rules_data.json` and can be edited without touching code. Everything runs on your machine — the request log and history stay in a local SQLite file. Works on both macOS and Windows, each with a one-click launcher that sets up the environment and opens the browser only when the page is truly ready.
+Targets Seedance 2.5 and MiniMax H3 (video), Doubao / Seedream and GPT Image (image). Rewriting is done by DeepSeek; the per-model rules live in `rules_data.json` and can be edited without touching code. Built with FastAPI, SSE streaming and a local SQLite store — no cloud service, no account, no data leaving your machine. Works on both macOS and Windows, each with a one-click launcher that sets up the environment and opens the browser only when the page is truly ready.
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
