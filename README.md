@@ -4,20 +4,36 @@
 
 写下所想，其余由它铺陈
 
+一个本地运行的工作台：把一句模糊的描述整理成模型可用的分镜、光线与细节。戏份由模型推断，不向用户提问；想微调时才用结果区的「换个戏份」。
+
+支持四个目标模型：Seedance 2.5（视频）、MiniMax H3（视频）、豆包生图 / Seedream（图片）、GPT Image（图片）。改写由 DeepSeek 完成，规则写在 `rules_data.json`。
+
+## English
+
+A local workspace that turns one rough line into a model-ready prompt: shot sizes, camera movement, lighting and sound cues, plus a persistent style lock. The scene type is inferred from what you write — never asked.
+
+Targets Seedance 2.5 and MiniMax H3 (video), Doubao / Seedream and GPT Image (image). Rewriting is done by DeepSeek; the per-model rules live in `rules_data.json` and can be edited without touching code. Everything runs on your machine — the request log and history stay in a local SQLite file.
+
+```bash
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+cp .env.example .env        # 填入 DEEPSEEK_API_KEY
+.venv/bin/python -m uvicorn app:app --host 127.0.0.1 --port 8000
+```
+
 ### 预览
 
-![改写工作台首屏](docs/screenshots/home.png)
+![改写工作台首屏](docs/screenshots/home.jpg)
 
 <details>
 <summary>更多界面</summary>
 
 结果面板（戏份判定 / 正文 / 改动说明）：
 
-![改写结果面板](docs/screenshots/result.png)
+![改写结果面板](docs/screenshots/result.jpg)
 
 移动端（窄屏单列）：
 
-![移动端界面](docs/screenshots/mobile.png)
+![移动端界面](docs/screenshots/mobile.jpg)
 
 </details>
 
@@ -28,10 +44,6 @@
 | EN | Write what you mean — the rest is composed. | Before the image |
 
 产品名 `Prompt Assistant` 三语相同，不翻译。完整文案见 [docs/brand-copy.md](docs/brand-copy.md)。
-
-一个本地运行的工作台：把一句模糊的描述整理成模型可用的分镜、光线与细节。戏份由模型推断，不向用户提问；想微调时才用结果区的「换个戏份」。
-
-支持四个目标模型：Seedance 2.5（视频）、MiniMax H3（视频）、豆包生图 / Seedream（图片）、GPT Image（图片）。改写由 DeepSeek 完成，规则写在 `rules_data.json`。
 
 ## 快速开始
 
@@ -146,3 +158,7 @@ curl -X POST http://localhost:8000/api/rewrite \
 - 改写质量取决于 `rules_data.json` 的规则与 DeepSeek 本身。
 - 流式下四段标记靠状态机切分；若模型完全不按格式输出，解析器会把整段当提示词，不丢内容但会缺少戏份与改动说明。
 - 数据库和日志都在项目目录里，尚未做多用户与备份。
+
+## License
+
+MIT — 见 [LICENSE](LICENSE)。
