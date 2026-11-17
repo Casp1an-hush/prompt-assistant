@@ -6,13 +6,15 @@
 
 一个本地运行的工作台：把一句模糊的描述整理成模型可用的分镜、光线与细节。戏份由模型推断，不向用户提问；想微调时才用结果区的「换个戏份」。
 
+同时支持 **macOS** 和 **Windows**：两边都有开箱即用的启动入口，自动建环境、引导填 key、清理卡死的旧服务，并在页面真正就绪后才打开浏览器。
+
 支持四个目标模型：Seedance 2.5（视频）、MiniMax H3（视频）、豆包生图 / Seedream（图片）、GPT Image（图片）。改写由 DeepSeek 完成，规则写在 `rules_data.json`。
 
 ## English
 
 A local workspace that turns one rough line into a model-ready prompt: shot sizes, camera movement, lighting and sound cues, plus a persistent style lock. The scene type is inferred from what you write — never asked.
 
-Targets Seedance 2.5 and MiniMax H3 (video), Doubao / Seedream and GPT Image (image). Rewriting is done by DeepSeek; the per-model rules live in `rules_data.json` and can be edited without touching code. Everything runs on your machine — the request log and history stay in a local SQLite file.
+Targets Seedance 2.5 and MiniMax H3 (video), Doubao / Seedream and GPT Image (image). Rewriting is done by DeepSeek; the per-model rules live in `rules_data.json` and can be edited without touching code. Everything runs on your machine — the request log and history stay in a local SQLite file. Works on both macOS and Windows, each with a one-click launcher that sets up the environment and opens the browser only when the page is truly ready.
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
@@ -47,29 +49,34 @@ cp .env.example .env        # 填入 DEEPSEEK_API_KEY
 
 ## 快速开始
 
-要求 Python 3.10+。
+要求 Python 3.10+。两个平台都提供一键入口，首次运行会自动建虚拟环境、交互式引导填入并校验 DeepSeek key、清掉卡死的旧服务，并在服务真正能返回完整页面后才打开浏览器（不会白屏）。
+
+### macOS
+
+双击 **`Prompt Assistant.app`**（推荐）——带自定义图标的应用包，图标随仓库分发，双击后自动找到同级的 `run.command` 完成启动。也可以直接双击 `run.command`。
+
+> 从 GitHub 下载的 `.app` 可能带 macOS 的「来自未知开发者」提示：右键 → 打开 → 再点「打开」即可；或终端执行 `xattr -d com.apple.quarantine "Prompt Assistant.app"` 去掉隔离属性。这是所有未签名下载应用的正常现象，不是本项目的问题。
+
+### Windows
+
+1. 双击 **`create-shortcut.cmd`**（只需一次）：在桌面生成带图标的 `Prompt Assistant` 快捷方式；
+2. 以后双击桌面图标启动，或直接双击 `run.cmd`。
+
+Windows 下启动逻辑与 macOS 等价：自动检测 `py -3` / `python`、用 `netstat` + `taskkill` 只清理本项目的 uvicorn/python 进程、用 PowerShell 轮询完整首页后才开浏览器。`.ico` 图标与界面同款。
+
+> Windows 无法像 macOS `.app` 那样把「带图标的入口」直接放进 ZIP，所以图标通过一次性的快捷方式脚本落到桌面。若不想创建快捷方式，直接双击 `run.cmd` 也能正常用，只是任务栏显示命令行默认图标。
+
+### 手动安装（任意平台）
 
 ```bash
-# 1. 装依赖
 python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
-
-# 2. 配置 key
-cp .env.example .env
+.venv/bin/pip install -r requirements.txt      # Windows: .venv\Scripts\pip.exe
+cp .env.example .env                           # Windows: copy .env.example .env
 # 编辑 .env，把 DEEPSEEK_API_KEY 换成自己的（platform.deepseek.com 获取）
-chmod 600 .env
-
-# 3. 启动
 .venv/bin/python -m uvicorn app:app --host 127.0.0.1 --port 8000
 ```
 
 浏览器打开 <http://localhost:8000>。
-
-**macOS 用户：双击 `Prompt Assistant.app` 即可**（推荐）。它是一个带自定义图标的应用包，图标随仓库一起分发，下载后无需额外设置；双击后自动找到同级的 `run.command` 完成启动。图标与界面同款（深色圆角 + 暖砂框线）。
-
-也可以双击 `run.command`——它会一次性帮你做完：首次自动建虚拟环境、交互式引导填入并校验 DeepSeek key、清掉卡死的旧服务，然后等服务真正能返回完整页面后才打开浏览器（不会出现白屏）。所有启动逻辑都在这一个文件里，`.app` 和桌面快捷方式都只是转发到它。
-
-> 从 GitHub 下载的 `.app` 可能带 macOS 的「来自未知开发者」提示：右键 → 打开 → 再点「打开」即可；或终端执行 `xattr -d com.apple.quarantine "Prompt Assistant.app"` 去掉隔离属性。这是所有未签名下载应用的正常现象，不是本项目的问题。
 
 ## 目录结构
 
@@ -79,6 +86,9 @@ Prompt Assistant.app/  macOS 应用包：自带图标，双击转发到 run.comm
   Contents/MacOS/launcher   启动器：定位并调用 run.command
   Contents/Resources/AppIcon.icns  应用图标（1024×1024，随仓库分发）
 run.command          macOS 启动脚本：全部启动逻辑（唯一实现）
+run.cmd              Windows 启动脚本：与 run.command 等价（唯一实现）
+create-shortcut.cmd  Windows 一次性脚本：在桌面生成带图标的快捷方式
+PromptAssistant.ico  Windows 图标（16–256px 多尺寸，与界面同款）
 app.py               FastAPI 装配（初始化 / 挂路由 / 首页）
 config.py            集中配置与环境变量
 routes.py            全部 HTTP 接口

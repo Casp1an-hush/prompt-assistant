@@ -1,0 +1,2 @@
+# Windows 批处理必须按字节保留 CRLF，否则 cmd.exe 的 goto / 块解析可能失效
+*.cmd -text
