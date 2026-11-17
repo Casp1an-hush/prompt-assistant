@@ -63,7 +63,7 @@ chmod 600 .env
 .venv/bin/python -m uvicorn app:app --host 127.0.0.1 --port 8000
 ```
 
-浏览器打开 <http://localhost:8000>。macOS 也可以双击 `run.command`，它会自动准备环境、启动并等健康检查通过后打开浏览器。
+浏览器打开 <http://localhost:8000>。macOS 也可以双击 `run.command`——它会一次性帮你做完：首次自动建虚拟环境、交互式引导填入并校验 DeepSeek key、清掉卡死的旧服务，然后等服务真正能返回完整页面后才打开浏览器（不会出现白屏）。所有启动逻辑都在这一个文件里，桌面快捷方式只是转发到它。
 
 ## 目录结构
 
@@ -99,7 +99,7 @@ logs/studio.log      自动生成的运行日志
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
-| GET | `/api/health` | 健康检查，启动脚本用它判断服务是否就绪 |
+| GET | `/api/health` | 轻量健康检查（返回配置状态）；启动脚本另以「完整首页能否读全」为就绪判据，避免半死服务骗过探测 |
 | GET | `/api/options` | 下拉选项、功能开关、可用背景 |
 | POST | `/api/stream` | **主接口**，SSE 流式：`start → meta → delta×N → done` |
 | POST | `/api/rewrite` | 同步改写，返回 `{scene, reason, prompt, changes[]}` |
