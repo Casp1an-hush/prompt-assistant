@@ -1,0 +1,40 @@
+/* Prompt Assistant · 垂直自适应
+   桌面端把垂直 padding、间距、最小高度从固定 px 改为随视口高度收缩的 clamp()。
+   大屏（≥1080 高）取 clamp 上限；矮屏自动压紧，减少滚动。
+   只改布局尺寸，不动颜色与动效。
+   手机竖屏（≤720 宽）沿用 app.css 的单列规则。 */
+
+@media (min-width: 721px) {
+  .content { padding-top: clamp(18px, 3.6vh, 64px); padding-bottom: clamp(24px, 5vh, 100px); }
+  .page-head { margin-bottom: clamp(14px, 2.6vh, 48px); }
+  .eyebrow { margin-bottom: clamp(7px, 1.1vh, 16px); }
+  .page-title { font-size: clamp(26px, min(3.2vw, 3.9vh), 42px); margin-bottom: clamp(7px, 1.1vh, 14px); }
+  .editor { min-height: clamp(100px, 14vh, 158px); }
+  .examples { margin-top: clamp(9px, 1.6vh, 16px); }
+  .params {
+    margin-top: clamp(10px, 1.8vh, 24px);
+    padding-top: clamp(10px, 1.8vh, 24px);
+    gap: clamp(9px, 1.4vh, 16px);
+  }
+  .params .field label { margin-bottom: 5px; }
+  .field-hint { margin-top: 4px; min-height: 0; }
+  .actions { margin-top: clamp(10px, 1.8vh, 24px); }
+  .result-panel { min-height: clamp(270px, 42vh, 420px); }
+  .result-empty { min-height: clamp(230px, 36vh, 370px); }
+  .panel {
+    padding-top: clamp(13px, 2.2vh, 24px);
+    padding-bottom: clamp(14px, 2.4vh, 32px);
+  }
+  .panel-head { margin-bottom: clamp(8px, 1.4vh, 16px); }
+}
+
+/* 中等宽度：左右栏等分，减少参数网格换行（换行是矮屏溢出的主因） */
+@media (min-width: 721px) and (max-width: 1400px) {
+  .workspace { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+
+/* 窄桌面 / 平板横屏：隐藏模型说明行、缩小标签，压缩参数区高度 */
+@media (min-width: 721px) and (max-width: 1100px) {
+  .params .field-hint { display: none; }
+  .params .field label { font-size: 10px; }
+}

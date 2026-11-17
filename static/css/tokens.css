@@ -1,0 +1,118 @@
+/* Prompt Assistant · 设计令牌
+   颜色、字体、间距、圆角与动效曲线。
+   改主题只改这里，组件样式不直接写颜色值。 */
+
+:root {
+  color-scheme: dark;
+
+  /* 表面层级：由深到浅 */
+  --bg: #0e1110;          /* 页面底 */
+  --bg-raised: #141918;   /* 侧栏 / 顶栏 */
+  --surface: #1a201e;     /* 卡片 */
+  --surface-2: #232a28;   /* 悬浮 / 下拉 */
+  --surface-3: #2b3330;   /* 最高层 */
+  --well: #121715;        /* 输入井：比卡片深，形成凹陷 */
+
+  --text: #f0ede6;
+  --text-2: #c2c8c2;
+  --text-3: #939b95;
+  --text-faint: #6c746e;
+
+  --line: rgba(240, 237, 230, 0.10);
+  --line-strong: rgba(240, 237, 230, 0.20);
+
+  /* 语义：雾青 = 用户操作，暖砂 = 模型产出 */
+  --accent: #b3c8bb;
+  --accent-deep: #93b0a0;
+  --accent-soft: rgba(179, 200, 187, 0.1);
+  --warm: #d3b79c;
+  --warm-soft: rgba(211, 183, 156, 0.1);
+  --danger: #d09a90;
+  --danger-soft: rgba(208, 154, 144, 0.09);
+
+  /* 材质层令牌：光场 / 栅格 / 边缘高光 / 投影 */
+  --glow-mist: rgba(143, 169, 162, 0.19);
+  --glow-warm: rgba(201, 174, 149, 0.17);
+  --grid-line: rgba(240, 237, 230, 0.022);
+  --edge-light: rgba(255, 255, 255, 0.055);
+  --shadow-card: 0 22px 48px rgba(0, 0, 0, 0.30), 0 2px 6px rgba(0, 0, 0, 0.18);
+
+  --font-display: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", Georgia, serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "SF Mono", "JetBrains Mono", Menlo, monospace;
+
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+  --s8: 64px;
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 18px;
+
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur: 320ms;
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* 环境光 / 颗粒 / 栅格统一由 atmosphere.css 提供，避免两层光晕叠加过亮 */
+
+button, input, select, textarea { font-family: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+
+/* 组件里用了 display:flex/grid，需要强制保留原生 hidden 语义 */
+[hidden] { display: none !important; }
+
+:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 3px;
+}
+
+::selection { background: rgba(168, 191, 178, 0.24); color: var(--text); }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(232, 229, 222, 0.1);
+  border: 3px solid var(--bg);
+  border-radius: 10px;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes drift {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(320%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

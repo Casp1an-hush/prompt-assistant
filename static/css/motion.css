@@ -1,0 +1,161 @@
+/* Prompt Assistant · 动态层
+   两团光场 + 四类粒子：气泡、陨尘、流星、水波。
+   只动画 transform / opacity，走合成层。
+   粒子位于 .atmo-live 内（.atmosphere z-index:0），在文字内容之下。
+   prefers-reduced-motion 下粒子隐藏、光场与背景图定格。
+   删掉 index.html 中对应的 <link> 可整块移除动画。 */
+
+.atmo-live {
+  position: absolute;
+  inset: -12%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* ---------- 01 光场：两团柔光反向漂移 ---------- */
+
+.live-glow {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform, opacity;
+  filter: blur(2px);
+}
+
+/* 主光（雾青） */
+.live-glow-a {
+  width: 52vw;
+  height: 52vw;
+  left: 4vw;
+  top: -8vw;
+  background: radial-gradient(circle, rgba(143, 169, 162, 0.30), transparent 64%);
+  animation: live-a 13s ease-in-out infinite alternate;
+}
+
+/* 辅光（暖砂） */
+.live-glow-b {
+  width: 46vw;
+  height: 46vw;
+  right: 2vw;
+  bottom: -8vw;
+  background: radial-gradient(circle, rgba(201, 174, 149, 0.26), transparent 66%);
+  animation: live-b 17s ease-in-out infinite alternate;
+}
+
+@keyframes live-a {
+  0%   { transform: translate3d(-6vw, -4vh, 0) scale(0.9);  opacity: 0.45; }
+  100% { transform: translate3d(20vw, 16vh, 0) scale(1.25); opacity: 1; }
+}
+@keyframes live-b {
+  0%   { transform: translate3d(8vw, 6vh, 0) scale(1.25);     opacity: 1; }
+  100% { transform: translate3d(-18vw, -14vh, 0) scale(0.9); opacity: 0.45; }
+}
+
+/* ---------- 02 粒子：由 JS 注入，位置与节奏随机 ---------- */
+
+/* 气泡：自下而上浮起 */
+.p-bubble {
+  position: absolute;
+  bottom: -24px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, rgba(226, 238, 232, 0.30), rgba(158, 183, 176, 0.08) 62%, transparent 74%);
+  border: 1px solid rgba(200, 220, 214, 0.16);
+  box-shadow: 0 0 8px rgba(158, 183, 176, 0.14);
+  opacity: 0;
+  animation-name: p-rise;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+@keyframes p-rise {
+  0%   { transform: translate3d(0, 0, 0) scale(0.6); opacity: 0; }
+  12%  { opacity: 0.75; }
+  50%  { transform: translate3d(var(--sway, 0px), -54vh, 0) scale(1); }
+  88%  { opacity: 0.55; }
+  100% { transform: translate3d(calc(var(--sway, 0px) * -0.5), -110vh, 0) scale(1.12); opacity: 0; }
+}
+
+/* 陨尘：缓慢漂移 */
+.p-drift {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(226, 238, 232, 0.55);
+  box-shadow: 0 0 10px 2px rgba(158, 183, 176, 0.26);
+  opacity: 0;
+  animation-name: p-drift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  will-change: transform, opacity;
+}
+@keyframes p-drift {
+  0%   { transform: translate3d(0, 0, 0); opacity: 0.12; }
+  50%  { opacity: 0.5; }
+  100% { transform: translate3d(var(--dx, 30px), var(--dy, -30px), 0); opacity: 0.22; }
+}
+
+/* 流星：斜向划过，间歇出现 */
+.p-meteor {
+  position: absolute;
+  height: 1px;
+  border-radius: 1px;
+  background: linear-gradient(90deg, transparent, rgba(226, 238, 232, 0.55) 68%, rgba(255, 255, 255, 0.95));
+  box-shadow: 0 0 6px rgba(226, 238, 232, 0.32);
+  transform-origin: right center;
+  opacity: 0;
+  animation-name: p-shoot;
+  animation-timing-function: cubic-bezier(.25, .6, .3, 1);
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+@keyframes p-shoot {
+  0%   { transform: translate3d(0, 0, 0) rotate(38deg) scaleX(0.15); opacity: 0; }
+  4%   { opacity: 0.95; }
+  26%  { transform: translate3d(34vw, 27vh, 0) rotate(38deg) scaleX(1); opacity: 0; }
+  100% { transform: translate3d(34vw, 27vh, 0) rotate(38deg) scaleX(1); opacity: 0; }
+}
+
+/* 水波：圆环扩散淡出 */
+.p-ripple {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(158, 183, 176, 0.26);
+  box-shadow: inset 0 0 12px rgba(158, 183, 176, 0.07), 0 0 12px rgba(158, 183, 176, 0.05);
+  opacity: 0;
+  transform: scale(0.2);
+  animation-name: p-ripple;
+  animation-timing-function: ease-out;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+@keyframes p-ripple {
+  0%   { transform: scale(0.2); opacity: 0; }
+  15%  { opacity: 0.5; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+
+/* ---------- 03 状态灯 ---------- */
+@keyframes led-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(125, 214, 160, 0.10), 0 0 8px 1px rgba(125, 214, 160, 0.55); }
+  50%      { box-shadow: 0 0 0 4px rgba(125, 214, 160, 0.14), 0 0 13px 2px rgba(125, 214, 160, 0.72); }
+}
+
+/* ---------- 04 背景氛围图：缓慢推拉与平移 ----------
+   只作用于已开启的图（#ambient.on）。scale 起步 1.10，
+   为平移留出余量，保证位移时四边不露底。 */
+#ambient.on {
+  animation: ambient-drift 38s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes ambient-drift {
+  0%   { transform: scale(1.10) translate3d(-2%, 1.2%, 0); }
+  100% { transform: scale(1.18) translate3d(2.2%, -1.8%, 0); }
+}
+
+/* ---------- 05 减少动态效果 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .live-glow-a,
+  .live-glow-b { animation: none; opacity: 0.8; }
+  .p-bubble, .p-drift, .p-meteor, .p-ripple { animation: none; opacity: 0; }
+  #ambient.on  { animation: none; }
+  .status-led.ok { animation: none; }
+}
