@@ -30,7 +30,7 @@ LOG_DIR = ROOT / "logs"
 STATIC_DIR = ROOT / "static"
 
 # 版本号的唯一来源；app.py、/api/health 与页面角标都读这里
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 
 # 显式指定路径，避免从别的目录启动时读不到 .env
 load_dotenv(ROOT / ".env")
