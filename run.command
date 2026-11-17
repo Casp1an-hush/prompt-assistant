@@ -18,13 +18,33 @@ if page_ok; then
   exit 0
 fi
 
-# 端口被占但页面不完整 → 是坏的旧进程，杀掉再重启
+# 端口被占但页面不完整 → 需要清理，但只清本项目的服务，绝不误杀别的程序
 # 用 lsof 判断端口占用，比 curl 更可靠（能抓到「有头无身」的半死状态）
 if lsof -nP -iTCP:8000 -sTCP:LISTEN -t >/dev/null 2>&1; then
-  echo "检测到旧服务无响应（端口被占但页面不完整），正在重启…"
   OLD_PIDS=$(lsof -nP -iTCP:8000 -sTCP:LISTEN -t 2>/dev/null)
-  [ -n "$OLD_PIDS" ] && kill $OLD_PIDS 2>/dev/null
-  sleep 1
+  for pid in $OLD_PIDS; do
+    cmd=$(ps -p "$pid" -o command= 2>/dev/null)
+    case "$cmd" in
+      *uvicorn*|*python*)
+        echo "检测到旧服务无响应（PID $pid），正在清理…"
+        kill "$pid" 2>/dev/null ;;
+      *)
+        echo "8000 端口被其他程序占用（PID $pid: $cmd），为避免误杀已停止。"
+        echo "请先手动关闭它，再重新双击启动。"
+        read -n 1 -s -r -p "按任意键退出"
+        exit 1 ;;
+    esac
+  done
+  # 轮询等待端口真正释放（最多 5 秒），避免紧接着启动报 address already in use
+  for _ in $(seq 1 50); do
+    lsof -nP -iTCP:8000 -sTCP:LISTEN -t >/dev/null 2>&1 || break
+    sleep 0.1
+  done
+  if lsof -nP -iTCP:8000 -sTCP:LISTEN -t >/dev/null 2>&1; then
+    echo "8000 端口未能及时释放，启动中止，请稍后重试。"
+    read -n 1 -s -r -p "按任意键退出"
+    exit 1
+  fi
 fi
 
 # 首次运行：自动准备环境
