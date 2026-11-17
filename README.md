@@ -63,11 +63,22 @@ chmod 600 .env
 .venv/bin/python -m uvicorn app:app --host 127.0.0.1 --port 8000
 ```
 
-浏览器打开 <http://localhost:8000>。macOS 也可以双击 `run.command`——它会一次性帮你做完：首次自动建虚拟环境、交互式引导填入并校验 DeepSeek key、清掉卡死的旧服务，然后等服务真正能返回完整页面后才打开浏览器（不会出现白屏）。所有启动逻辑都在这一个文件里，桌面快捷方式只是转发到它。
+浏览器打开 <http://localhost:8000>。
+
+**macOS 用户：双击 `Prompt Assistant.app` 即可**（推荐）。它是一个带自定义图标的应用包，图标随仓库一起分发，下载后无需额外设置；双击后自动找到同级的 `run.command` 完成启动。图标与界面同款（深色圆角 + 暖砂框线）。
+
+也可以双击 `run.command`——它会一次性帮你做完：首次自动建虚拟环境、交互式引导填入并校验 DeepSeek key、清掉卡死的旧服务，然后等服务真正能返回完整页面后才打开浏览器（不会出现白屏）。所有启动逻辑都在这一个文件里，`.app` 和桌面快捷方式都只是转发到它。
+
+> 从 GitHub 下载的 `.app` 可能带 macOS 的「来自未知开发者」提示：右键 → 打开 → 再点「打开」即可；或终端执行 `xattr -d com.apple.quarantine "Prompt Assistant.app"` 去掉隔离属性。这是所有未签名下载应用的正常现象，不是本项目的问题。
 
 ## 目录结构
 
 ```
+Prompt Assistant.app/  macOS 应用包：自带图标，双击转发到 run.command（与项目根目录同级放置）
+  Contents/Info.plist       应用元信息与图标引用
+  Contents/MacOS/launcher   启动器：定位并调用 run.command
+  Contents/Resources/AppIcon.icns  应用图标（1024×1024，随仓库分发）
+run.command          macOS 启动脚本：全部启动逻辑（唯一实现）
 app.py               FastAPI 装配（初始化 / 挂路由 / 首页）
 config.py            集中配置与环境变量
 routes.py            全部 HTTP 接口
