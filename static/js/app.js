@@ -722,6 +722,7 @@ async function init() {
       health.key_configured ? 'ok' : 'bad',
       health.key_configured ? '本地服务已就绪' : '还没配置 API key',
     );
+    if (health.version) $('versionTag').textContent = `v${health.version}`;
   } catch (error) {
     setStatus('bad', '连不上本地服务');
     showNotice(`读取配置失败：${error.message}`);

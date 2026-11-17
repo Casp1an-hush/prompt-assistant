@@ -33,7 +33,7 @@ logging.getLogger("studio").setLevel(logging.INFO)
 
 store.init_db()
 
-app = FastAPI(title="Prompt Assistant", version="2.0")
+app = FastAPI(title="Prompt Assistant", version=config.VERSION)
 app.include_router(router)
 app.mount("/static", StaticFiles(directory=str(config.STATIC_DIR)), name="static")
 

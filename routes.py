@@ -96,7 +96,7 @@ def options():
 def health():
     return {
         "status": "ok",
-        "version": "2.0",
+        "version": config.VERSION,
         "dev_mode": config.DEV_MODE,
         "rules_loaded": len(rules.MODELS),
         "key_configured": bool(config.api_key()),
