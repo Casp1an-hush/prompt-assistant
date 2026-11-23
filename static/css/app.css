@@ -912,3 +912,70 @@
   color: var(--text);
   background: var(--accent-soft);
 }
+
+/* 拆解结果：名字按钮 + 详情 */
+
+.bd-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: var(--s3);
+  padding-bottom: var(--s3);
+  border-bottom: 1px solid var(--line);
+}
+
+.bd-chip {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text-3);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  cursor: pointer;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease),
+              background var(--dur) var(--ease);
+}
+
+.bd-chip:hover { color: var(--text-2); border-color: var(--line-strong); }
+
+.bd-chip.active {
+  color: var(--text);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+
+/* 可编辑的出图提示词 */
+.bd-prompt-actions { display: flex; align-items: center; gap: var(--s3); }
+.bd-edited {
+  font-size: 11px;
+  color: var(--warm, var(--accent));
+  letter-spacing: .04em;
+}
+.bd-edited[hidden] { display: none; }
+
+.bd-prompt-input {
+  width: 100%;
+  min-height: 88px;
+  margin: 0;
+  padding: 10px 12px;
+  background: rgba(10, 13, 12, 0.55);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text-2);
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1.65;
+  resize: vertical;
+  overflow: hidden;
+}
+.bd-prompt-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}

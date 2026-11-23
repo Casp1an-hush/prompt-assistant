@@ -139,6 +139,9 @@ const ENTRIES = {
   'bd.export': ['导出 Markdown', '匯出 Markdown', 'Export Markdown'],
   'bd.promptLabel': ['出图提示词', '出圖提示詞', 'Image prompt'],
   'bd.copy': ['复制', '複製', 'Copy'],
+  'bd.unnamed': ['未命名', '未命名', 'Untitled'],
+  'bd.edited': ['已修改', '已修改', 'edited'],
+  'bd.reset': ['恢复原文', '恢復原文', 'Reset'],
   'bd.placeholder': [
     '第一集\n1-1\n雨夜，老城区天台。\n林晚推门冲上天台，雨水顺着湿透的短发往下淌……\n1-2\n陈默回过头，露出左眉一道旧疤……',
     '第一集\n1-1\n雨夜，老城區天台。\n林晚推門衝上天台，雨水順著濕透的短髮往下淌……\n1-2\n陳默回過頭，露出左眉一道舊疤……',

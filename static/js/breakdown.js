@@ -24,6 +24,7 @@ const state = {
   result: null,
   style: '',
   tab: 'characters',
+  selected: { characters: 0, scenes: 0, props: 0 },
   running: false,
 };
 
@@ -95,6 +96,7 @@ async function run() {
     }
     state.result = data;
     state.style = data.style || '';
+    state.selected = { characters: 0, scenes: 0, props: 0 };
     render();
     toast(data.demo ? t('toast.doneDemo') : t('toast.done'));
   } catch (error) {
@@ -159,83 +161,178 @@ function renderCards() {
   const data = state.result;
   const list = $('bdCards');
   list.replaceChildren();
-  const cards = (data && data[state.tab]) || [];
+  const cards = (data && state.result[state.tab]) || [];
+  if (!cards.length) return;
 
+  // 记住每个页签上次选中的是哪个，切回来时不用重新找
+  let index = state.selected[state.tab] || 0;
+  if (index >= cards.length) index = 0;
+  state.selected[state.tab] = index;
+
+  list.appendChild(buildChips(cards, index));
+  list.appendChild(buildCard(cards[index]));
+}
+
+/** 顶部一排名字按钮：点谁看谁，不用往下翻。 */
+function buildChips(cards, index) {
+  const row = document.createElement('div');
+  row.className = 'bd-chips';
+
+  // 同名角色有多个状态时，按钮上补状态名以示区分
+  const seen = new Set();
+  const duplicated = new Set();
   cards.forEach((card) => {
-    const wrap = document.createElement('article');
-    wrap.className = 'bd-card';
-
-    const head = document.createElement('div');
-    head.className = 'bd-card-head';
-    const title = document.createElement('div');
-    title.className = 'bd-card-title';
-    title.textContent = card.name || '未命名';
-    head.appendChild(title);
-    if (card.label) {
-      const label = document.createElement('span');
-      label.className = 'bd-card-label';
-      label.textContent = card.label;
-      head.appendChild(label);
-    }
-    wrap.appendChild(head);
-
-    const dl = document.createElement('dl');
-    TAB_FIELDS[state.tab].forEach(([key, labelKey]) => {
-      const value = card[key];
-      if (!value) return;
-      const dt = document.createElement('dt');
-      dt.textContent = t(labelKey);
-      const dd = document.createElement('dd');
-      dd.textContent = value;
-      dl.append(dt, dd);
-    });
-    if (card.anchors && card.anchors.length) {
-      const dt = document.createElement('dt');
-      dt.textContent = t('f.anchors');
-      const dd = document.createElement('dd');
-      dd.textContent = card.anchors.join('；');
-      dl.append(dt, dd);
-    }
-    wrap.appendChild(dl);
-
-    if (card.prompt) {
-      const prompt = document.createElement('div');
-      prompt.className = 'bd-prompt';
-
-      const bar = document.createElement('div');
-      bar.className = 'bd-prompt-bar';
-      const caption = document.createElement('span');
-      caption.textContent = t('bd.promptLabel');
-      const copy = document.createElement('button');
-      copy.className = 'link-btn';
-      copy.type = 'button';
-      copy.textContent = t('bd.copy');
-      copy.addEventListener('click', async () => {
-        const ok = await copyText(card.prompt);
-        toast(ok ? t('toast.copiedPrompt') : t('toast.copyFailed'));
-      });
-      bar.append(caption, copy);
-
-      const pre = document.createElement('pre');
-      pre.textContent = card.prompt;
-
-      prompt.append(bar, pre);
-      wrap.appendChild(prompt);
-    }
-
-    list.appendChild(wrap);
+    if (seen.has(card.name)) duplicated.add(card.name);
+    seen.add(card.name);
   });
+
+  cards.forEach((card, i) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'bd-chip' + (i === index ? ' active' : '');
+    const showLabel = duplicated.has(card.name) && card.label;
+    button.textContent = showLabel ? `${card.name} · ${card.label}` : (card.name || t('bd.unnamed'));
+    if (card.label) button.title = card.label;
+    button.addEventListener('click', () => {
+      state.selected[state.tab] = i;
+      renderCards();
+    });
+    row.appendChild(button);
+  });
+
+  return row;
+}
+
+/** 选中条目的详情：字段 + 可复制的出图提示词。 */
+function buildCard(card) {
+  const wrap = document.createElement('article');
+  wrap.className = 'bd-card';
+
+  const head = document.createElement('div');
+  head.className = 'bd-card-head';
+  const title = document.createElement('div');
+  title.className = 'bd-card-title';
+  title.textContent = card.name || t('bd.unnamed');
+  head.appendChild(title);
+  if (card.label) {
+    const label = document.createElement('span');
+    label.className = 'bd-card-label';
+    label.textContent = card.label;
+    head.appendChild(label);
+  }
+  wrap.appendChild(head);
+
+  const dl = document.createElement('dl');
+  TAB_FIELDS[state.tab].forEach(([key, labelKey]) => {
+    const value = card[key];
+    if (!value) return;
+    const dt = document.createElement('dt');
+    dt.textContent = t(labelKey);
+    const dd = document.createElement('dd');
+    dd.textContent = value;
+    dl.append(dt, dd);
+  });
+  if (card.anchors && card.anchors.length) {
+    const dt = document.createElement('dt');
+    dt.textContent = t('f.anchors');
+    const dd = document.createElement('dd');
+    dd.textContent = card.anchors.join('；');
+    dl.append(dt, dd);
+  }
+  wrap.appendChild(dl);
+
+  if (card.prompt) {
+    const prompt = document.createElement('div');
+    prompt.className = 'bd-prompt';
+
+    const bar = document.createElement('div');
+    bar.className = 'bd-prompt-bar';
+    const caption = document.createElement('span');
+    caption.textContent = t('bd.promptLabel');
+
+    const actions = document.createElement('div');
+    actions.className = 'bd-prompt-actions';
+
+    if (card.__original === undefined) card.__original = card.prompt;
+
+    const edited = document.createElement('span');
+    edited.className = 'bd-edited';
+    edited.textContent = t('bd.edited');
+    edited.hidden = card.prompt === card.__original;
+
+    const reset = document.createElement('button');
+    reset.className = 'link-btn';
+    reset.type = 'button';
+    reset.textContent = t('bd.reset');
+    reset.hidden = card.prompt === card.__original;
+    reset.addEventListener('click', () => {
+      card.prompt = card.__original;
+      renderCards();
+    });
+
+    const copy = document.createElement('button');
+    copy.className = 'link-btn';
+    copy.type = 'button';
+    copy.textContent = t('bd.copy');
+    copy.addEventListener('click', async () => {
+      const ok = await copyText(card.prompt);
+      toast(ok ? t('toast.copiedPrompt') : t('toast.copyFailed'));
+    });
+
+    actions.append(edited, reset, copy);
+    bar.append(caption, actions);
+
+    // 提示词可以直接改，改后的内容用于复制与导出
+    const input = document.createElement('textarea');
+    input.className = 'bd-prompt-input';
+    input.value = card.prompt;
+    input.spellcheck = false;
+    const autosize = () => {
+      input.style.height = 'auto';
+      input.style.height = input.scrollHeight + 'px';
+    };
+    input.addEventListener('input', () => {
+      card.prompt = input.value;
+      edited.hidden = input.value === card.__original;
+      reset.hidden = input.value === card.__original;
+      autosize();
+    });
+    prompt.append(bar, input);
+    wrap.appendChild(prompt);
+    requestAnimationFrame(autosize);
+  }
+
+  return wrap;
 }
 
 /* ---------------------------------------------------------------- 导出 */
 
-function exportMarkdown() {
-  if (!state.result || !state.result.markdown) {
+async function exportMarkdown() {
+  if (!state.result) {
     notice(t('bd.nothingToExport'));
     return;
   }
-  downloadText(t('bd.filename'), state.result.markdown);
-  toast(t('toast.mdExported'));
+  try {
+    const res = await fetch('/api/breakdown/markdown', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        characters: state.result.characters,
+        scenes: state.result.scenes,
+        props: state.result.props,
+        style: state.style,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.markdown) {
+      notice(data.error || t('bd.failed'));
+      return;
+    }
+    downloadText(t('bd.filename'), data.markdown);
+    toast(t('toast.mdExported'));
+  } catch (error) {
+    notice(t('error.fetch', { msg: error.message }));
+  }
 }
 
 /* ---------------------------------------------------------------- 提示 */

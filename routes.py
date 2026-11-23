@@ -264,6 +264,24 @@ def breakdown_script(req: BreakdownRequest):
     }
 
 
+class MarkdownRequest(BaseModel):
+    characters: list = []
+    scenes: list = []
+    props: list = []
+    style: str = ""
+
+
+@router.post("/breakdown/markdown")
+def breakdown_markdown(req: MarkdownRequest):
+    """把（可能已被用户修改过的）卡片重新拼成 Markdown。"""
+    result = {
+        "characters": req.characters,
+        "scenes": req.scenes,
+        "props": req.props,
+    }
+    return {"markdown": breakdown.to_markdown(result, req.style)}
+
+
 # ---------------------------------------------------------------- 历史
 
 @router.get("/history")
