@@ -196,6 +196,14 @@ GitHub Actions runs the same suite on Python 3.10 / 3.12 / 3.14 for every push a
 
 See [CHANGELOG.md](CHANGELOG.md). 见 [CHANGELOG.md](CHANGELOG.md)。
 
+## AI collaboration · AI 协作说明
+
+Development and implementation were done in a human–AI collaboration: requirement definition, experience design, rule curation and result acceptance were led by the author, while implementation was assisted by AI tooling.
+开发与实现采用人机协作方式完成：以需求定义、体验设计、规则整理和结果验收为主导，实现环节借助 AI 工具链完成。
+
+The per-model rewriting rules in `rules_data.json` are based on the four models' published prompt guides and will be extended with the author's own production experience.
+`rules_data.json` 中各模型的改写规则基于四个模型公开的提示词指南整理，后续将继续补充作者本人的生产实践经验。
+
 ## License · 许可
 
 MIT — see [LICENSE](LICENSE). MIT — 见 [LICENSE](LICENSE)。

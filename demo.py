@@ -3,55 +3,79 @@
 
 Emits the same four-section text as the real model so the entire pipeline —
 streaming, SegmentParser, scene inference display, history — runs unchanged.
-A reviewer with no DeepSeek key can still experience the full product.
 输出与真实模型相同的四段文本，让流式、解析器、戏份展示、历史等整条链路
-原样运行。没有 DeepSeek key 的评委也能完整体验产品。
+原样运行。
 
 Everything is deterministic and local: no network, no secrets, no user data
-leaving the machine. The sample is clearly labelled as a demo in the UI.
+leaving the machine. The UI labels the result as a demo.
 全部内容确定且本地生成：不联网、不需要密钥、不上传任何用户数据。
-界面会明确标注这是演示内容。
+界面会标注这是演示内容。
+
+戏份与画风沿用 rules_data.json 的正式词表，避免演示输出和文档对不上。
 """
 from __future__ import annotations
 
 import re
 import time
 
-# Scene vocabulary reused for lightweight, offline inference / 轻量离线判定所用的戏份词表
+import rules
+
+# 关键词 → 官方六类戏份。顺序从最具体到最宽泛，先命中先返回。
 _SCENE_HINTS = [
-    ("动作戏", ("追", "逃", "打", "跑", "跳", "战斗", "追逐", "chase", "fight")),
-    ("情绪戏", ("哭", "笑", "孤独", "思念", "拥抱", "眼泪", "cry", "lonely")),
-    ("日常切片", ("窗台", "咖啡", "清晨", "午后", "餐桌", "morning", "coffee")),
-    ("产品静物", ("香水", "产品", "静物", "台面", "展示", "product", "bottle")),
+    ("动作戏", ("追", "逃", "打斗", "奔跑", "跳", "战斗", "追逐", "冲突", "搏斗",
+                "chase", "fight", "battle", "run")),
+    ("恐怖戏", ("恐怖", "惊悚", "鬼", "阴森", "尖叫", "血腥", "horror", "scary")),
+    ("悬疑戏", ("悬疑", "秘密", "线索", "调查", "真相", "监控", "嫌疑",
+                "mystery", "suspect", "clue")),
+    ("对话戏", ("对话", "交谈", "争吵", "争论", "conversation", "dialogue", "talk")),
+    ("环境戏", ("空镜", "风景", "城市", "街道", "雪山", "海边", "窗台", "咖啡",
+                "餐桌", "清晨", "午后", "landscape", "street", "window")),
 ]
 
+# 未命中任何关键词时的默认戏份
+DEFAULT_SCENE = "叙事戏"
+
+# 画风说明，键与 rules_data.json 的 styles 保持一致
 _STYLE_LABEL = {
     "2D": "2D 赛璐璐动画风",
     "3D": "3D 写实渲染风",
-    "真人": "真人电影质感",
-    "水墨": "东方水墨写意风",
-    "像素": "像素游戏风",
+    "国漫": "国漫线描风",
+    "次世代CG": "次世代 CG 渲染风",
 }
+
+# 分镜模板：景别、画面动作、环境音
+_BEATS = [
+    ("中景", "建立场景，主体进入画面", "环境底噪、轻微空气声"),
+    ("近景", "主体开始动作，镜头缓慢推进", "动作细节声"),
+    ("特写", "抓住关键细节，情绪或冲突升级", "主体声、节奏加强"),
+    ("中景", "动作延续，光线随镜头变化", "环境声回环"),
+]
+
+
+def scene_types() -> list:
+    """正式戏份词表，供测试与调用方核对。"""
+    return list(rules.SCENE_TYPES)
 
 
 def infer_scene(prompt: str, override: str = "") -> str:
-    """Pick a scene label from keywords (offline stand-in for model inference).
-    根据关键词挑选戏份标签，是模型判定在离线模式下的替身。
+    """Pick a scene from the official vocabulary by keywords.
+    按关键词在正式词表里挑一个戏份，是模型判定在离线模式下的替身。
     """
     if override:
         return override
-    text = prompt.lower()
+    text = (prompt or "").lower()
     for label, words in _SCENE_HINTS:
-        if any(w in text for w in words):
+        if any(word in text for word in words):
             return label
-    return "氛围片段"
+    return DEFAULT_SCENE
 
 
 def build_text(params: dict) -> str:
     """Build the four-section raw text fed to SegmentParser / 构造喂给解析器的四段原文."""
     prompt = (params.get("prompt") or "").strip()
     scene = infer_scene(prompt, params.get("scene_type", ""))
-    style = _STYLE_LABEL.get(params.get("style", ""), params.get("style", "") or "柔和的写实风格")
+    style_key = params.get("style", "")
+    style = _STYLE_LABEL.get(style_key, style_key or "柔和的写实风格")
     ratio = params.get("ratio", "16:9") or "16:9"
     duration = params.get("duration", "自动")
     model = params.get("model", "seedance")
@@ -60,8 +84,8 @@ def build_text(params: dict) -> str:
     # 保留用户自己写的词，让演示看起来与输入确实相关。
     subject = re.split(r"[，。！？,\.!?]", prompt)[0][:24] or "画面中的主体"
 
-    video = "video" in model or model in ("seedance", "minimax", "h3")
-    frames = _video_storyboard(subject, scene, video, duration) if video else _image_plan(subject, scene)
+    video = model in rules.VIDEO_MODELS
+    frames = _video_storyboard(scene, video, duration) if video else _image_plan()
 
     return (
         "===SCENE===\n" + scene + "\n"
@@ -75,25 +99,39 @@ def build_text(params: dict) -> str:
     )
 
 
-def _video_storyboard(subject: str, scene: str, video: bool, duration: str) -> str:
-    beats = [
-        ("0-1s", "中景", "建立场景，主体进入画面", "环境底噪、轻微空气声"),
-        ("1-2s", "近景", "主体开始动作，镜头缓慢推进", "动作细节声"),
-        ("2-3s", "特写", "抓住关键细节，情绪或冲突升级", "主体声、节奏加强"),
-        ("3-4s", "中景", "动作延续，光线随镜头变化", "环境声回环"),
-    ]
+def _seconds(duration):
+    """把时长参数解析成整数秒；无法解析时返回 None。"""
+    try:
+        value = int(str(duration).strip())
+    except (TypeError, ValueError):
+        return None
+    return value if 2 <= value <= 30 else None
+
+
+def _fmt_second(value) -> str:
+    return str(int(value)) if float(value).is_integer() else "{:.1f}".format(value)
+
+
+def _video_storyboard(scene: str, video: bool, duration: str) -> str:
+    total = _seconds(duration) or 4
+    count = min(total, 8)
+    step = total / count
+    camera = "侧机位" if scene == "动作戏" else "平视"
+
     lines = ["【分镜】"]
-    for t, shot, action, sound in beats:
-        lines.append("[{}]：{}，{} — {}；<{}>".format(t, shot, "侧机位" if scene == "动作戏" else "平视", action, sound))
-    lines.append("（演示样例：真实模式会按 {} 时长扩展为逐秒分镜）".format(duration))
+    for index in range(count):
+        start = index * step
+        end = min(total, (index + 1) * step)
+        shot, action, sound = _BEATS[index % len(_BEATS)]
+        lines.append("[{}-{}s]：{}，{} — {}；<{}>".format(
+            _fmt_second(start), _fmt_second(end), shot, camera, action, sound))
     return "\n".join(lines)
 
 
-def _image_plan(subject: str, scene: str) -> str:
+def _image_plan() -> str:
     return "\n".join([
         "【构图】",
         "主体居中偏左，留出呼吸感；前景轻虚化，背景层次分明。",
-        "（演示样例：真实模式会针对目标模型输出专属构图与光线方案）",
     ])
 
 
