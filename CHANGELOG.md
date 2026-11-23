@@ -3,7 +3,7 @@
 All notable changes to this project are documented here. Format follows Keep a Changelog; versions follow Semantic Versioning.
 本项目的所有重要变更都记录于此。格式遵循 Keep a Changelog，版本号遵循语义化版本。
 
-## v0.2.0 — 2026-11-25
+## v0.2.0 — 2026-11-23
 
 - **Script breakdown / 剧本拆解** — New view: paste a script split into `第X集 X-Y` scenes and get character model cards, scene plates and prop plates, each carrying a ready-to-use image prompt. 新增剧本拆解视图：粘贴按「第X集 X-Y」分段的剧本，输出人物模卡、场景图、道具图，每张都附可直接出图的提示词。
 - **Character cards / 人物模卡** — Fixed layout (frontal head close-up on the left, full-body three-view on the right) and a fixed prompt order: style anchor → name / gender / age → personality → appearance → costume. One card per character by default; 副状态 cards are added only when the script says the costume or form changes, and 主状态 1 / 2 when the appearance differs between halves. 固定版式（左头部特写、右全身三视图）与固定字段顺序；默认一张主状态，剧本明确写了换装或形态变化才拆副状态，前后半外貌差异大则分为主状态 1 / 2。
@@ -14,9 +14,9 @@ All notable changes to this project are documented here. Format follows Keep a C
 - **Name chips and editable prompts / 名字按钮与可编辑提示词** — After a breakdown, each card is reachable from a row of name buttons, so you pick the asset instead of scrolling. The image prompt itself is editable in place; edits are marked, can be reset, and are what the copy button and the Markdown export use. 拆解后上方是一排名字按钮，点谁看谁，不用往下翻；出图提示词可直接编辑，会标记「已修改」并可恢复原文，复制与导出用的都是改后的版本。
 - **History split by kind / 历史记录按类型分区** — Rewrites and breakdowns are now recorded and listed separately, each with its own tab and its own clear action. Breakdown entries show the style and the asset counts, and opening one puts the script back on the breakdown page. 改写与拆解分别记录、分标签展示，清空也只清当前分区；拆解记录显示画风与资产数量，点开可把剧本回填到拆解页。
 - **Version bump / 版本更新** — `VERSION` set to `0.2.0`. 版本号升至 `0.2.0`。
-- **Tests / 测试** — 70 passing, including the breakdown parser, the anchor uniqueness and an assertion that demo labels stay inside the official vocabulary. 70 项通过，含拆解解析、锚定句互不相同、演示词表属于正式词表等断言。
+- **Tests / 测试** — 74 passing, including the breakdown parser, the anchor uniqueness and an assertion that demo labels stay inside the official vocabulary. 74 项通过，含拆解解析、锚定句互不相同、演示词表属于正式词表等断言。
 
-## v0.1.3 — 2026-11-24
+## v0.1.3 — 2026-11-23
 
 - **Demo uses the official vocabulary / 演示模式改用正式词表** — The offline demo previously invented its own scene labels (情绪戏 / 日常切片 / 产品静物) and style names (真人 / 水墨 / 像素), none of which exist in `rules_data.json`, so demo output contradicted the documented six scene types. Demo inference now picks from `rules.SCENE_TYPES` with 叙事戏 as the default, and style labels follow `rules.STYLES`. 离线演示此前另造了戏份与画风名称，与 `rules_data.json` 中的正式词表不一致；现改为直接使用正式六类戏份与四种画风。
 - **Cleaner demo output / 演示输出更干净** — The demo caveat no longer sits inside the copyable prompt (it stays in the changes list and the UI notice), and the storyboard follows the requested duration instead of always showing four seconds. 演示说明不再混入可复制的正文（保留在改动列表与界面提示中）；分镜段数跟随所选时长，不再固定为 4 秒。
