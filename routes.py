@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from starlette.background import BackgroundTask
 
 import config
+import breakdown
 import errors
 import llm
 import rules
@@ -214,6 +215,53 @@ def rewrite(req: RewriteRequest):
     latency = int((time.time() - started) * 1000)
     log.info("rid=%s model=%s scene=%s latency=%dms", rid, params["model"], result.get("scene", ""), latency)
     return {**result, "request_id": rid, "cached": False, "latency_ms": latency, "usage": usage}
+
+
+# ---------------------------------------------------------------- 剧本拆解
+
+class BreakdownRequest(BaseModel):
+    text: str
+    style: str = ""
+
+
+@router.post("/breakdown")
+def breakdown_script(req: BreakdownRequest):
+    """按集-场分段的长文本 → 人物模卡 / 场景图 / 道具图。"""
+    problems = breakdown.validate_script(req.text)
+    if problems:
+        return JSONResponse(
+            {
+                "error": breakdown.problem_message(problems[0]),
+                "problems": problems,
+                "code": problems[0]["code"],
+            },
+            status_code=400,
+        )
+
+    started = time.time()
+    try:
+        result, usage = llm.breakdown_sync(req.text, req.style)
+    except Exception as exc:  # noqa: BLE001
+        err = errors.from_exception(exc)
+        log.exception("剧本拆解失败 code=%s", err.code)
+        return JSONResponse({"error": err.message, **err.as_dict()}, status_code=err.http_status)
+
+    result = breakdown.attach_prompts(result, req.style)
+    latency = int((time.time() - started) * 1000)
+    log.info(
+        "breakdown chars=%d style=%s chars_cards=%d scenes=%d props=%d latency=%dms",
+        len(req.text), req.style,
+        len(result["characters"]), len(result["scenes"]), len(result["props"]), latency,
+    )
+    return {
+        **result,
+        "style": req.style,
+        "demo": config.demo_mode(),
+        "markdown": breakdown.to_markdown(result, req.style),
+        "segments": breakdown.segments(req.text),
+        "latency_ms": latency,
+        "usage": usage,
+    }
 
 
 # ---------------------------------------------------------------- 历史

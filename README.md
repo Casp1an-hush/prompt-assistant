@@ -114,11 +114,53 @@ The product name "Prompt Assistant" is identical in all three languages. Full co
 ## Features · 功能亮点
 
 - **Scene inference / 戏份判定** — The model decides the scene from your text; "Change scene" is there only for fine-tuning. 模型根据你的文字判定戏份，「换个戏份」只用于微调。
+- **Script breakdown / 剧本拆解** — Paste a script split into `第X集 X-Y` scenes and get character model cards, scene plates and prop plates, each with a ready-to-use image prompt. 粘贴按「第X集 X-Y」分段的剧本，自动列出人物模卡、场景图、道具图，每张都附可直接出图的提示词。
 - **Structured output / 结构化输出** — A four-section protocol (scene / reason / prompt / changes) parsed by a streaming state machine. 四段协议（戏份 / 依据 / 提示词 / 改动），由流式状态机解析。
 - **Live SSE streaming / SSE 流式输出** — `start → meta → delta×N → done`, with incremental scene detection. `start → meta → delta×N → done`，戏份一旦判定立即推送。
 - **Local cache & history / 本地缓存与历史** — SQLite-backed cache and history; nothing uploaded. SQLite 缓存与历史，不上传任何内容。
 - **Demo mode / 演示模式** — Full offline experience with no key, no network and no signup. 无需 key、无需联网、无需注册即可完整体验。
-- **Three languages / 三语** — Simplified / Traditional / English copy. 简体 / 繁體 / English 文案。
+- **Trilingual interface / 三语界面** — Switch the whole interface between Simplified Chinese, Traditional Chinese and English from the top bar; the choice is remembered, and server errors are rendered in the selected language. 顶部可切换简体 / 繁體 / English，选择会被记住，服务端报错也按当前语言显示。
+
+## Script breakdown · 剧本拆解
+
+Turn a segmented script into production-ready asset cards: character model cards, scene plates and prop plates.
+把分好段的剧本拆成可直接开工的资产：人物模卡、场景图、道具图。
+
+**输入格式 / Input format** — the script must be split into episodes and scenes by hand; the app checks for it and refuses to guess.
+剧本需要先手动按集、场分段，程序会检查，不会替你猜：
+
+```
+第一集 1-1
+【场景】雨夜，老城区天台
+【人物】林晚、陈默
+正文……
+
+第一集 1-2
+……
+```
+
+Up to 30,000 characters per run. 单次上限 3 万字。
+
+**人物模卡 / Character card** — every card is laid out as *frontal head close-up on the left, full-body three-view on the right*; the prompt follows a fixed order: style anchor → name / gender / age → personality → appearance (build, face, bone structure) → costume (hair, cut, colour, layering).
+每张卡的画面结构固定为「左侧正面头部特写 + 右侧全身三视图」，提示词按固定顺序组织：风格锚定 → 姓名性别年龄 → 性格 → 外貌（体型、五官、骨相）→ 服饰（发色发长、款式、颜色、剪裁、叠穿）。
+
+**状态拆分 / States** — one card per character by default, labelled 主状态. A new card is added only when the script says so:
+
+- 副状态 N — 换装、更衣、换造型；身份转变、战伤、成长升级带来的形态变化
+- 主状态 1 / 主状态 2 — 外貌在剧本前半与后半有显著差异
+
+**风格锚定 / Style anchors** — the four styles are anchored with concrete material terms, not just names, and the anchor sentence is written by code so every card stays identical:
+四种画风都用具体的材质词锚定，锚定句由程序统一拼装，保证每张卡完全一致：
+
+| 画风 | 锚定的关键质感 |
+|---|---|
+| 2D | 平涂色块、单档硬边阴影、清晰黑色描线；禁止渐变与体积光 |
+| 3D | PBR 材质、皮肤次表面散射、织物经纬、金属各向异性高光 |
+| 国漫 | 书法性线条、矿物色、五至六成留白、宣纸绢本质感 |
+| 次世代CG | 院线级 CG、物理全局光照、体积雾与空气透视、85mm 浅景深 |
+
+**导出 / Export** — one click produces a Markdown asset sheet that can be handed straight to an artist.
+一键导出 Markdown 资产清单，可直接交给美术。
 
 ## Tech · 技术实现
 
@@ -128,6 +170,7 @@ A clean FastAPI service with deliberately simple, auditable components.
 - `parsing.py` — Four-section streaming state machine. Markers split across chunks are held as a prefix tail, so no character is lost. 四段流式状态机；标记被拆进两个 chunk 时保留前缀尾巴，逐字不丢。
 - `llm.py` — DeepSeek client with a heartbeated concurrency gate: stuck slots self-heal by idle / absolute timeout (a `Semaphore` + `finally` leaks slots when a client cancels a synchronous generator). DeepSeek 客户端，并发闸门带心跳：僵尸槽位按 idle / 绝对超时自愈（用 `Semaphore` + `finally` 时客户端取消同步生成器会永久泄漏名额）。
 - `demo.py` — Offline generator producing the same four-section text, so the entire pipeline runs unchanged without a key. 离线生成器，产出同样的四段文本，无 key 时整条链路原样运行。
+- `breakdown.py` — Script → assets. The model returns structured fields only; the image prompts are assembled in code so the style anchor is byte-identical across every card. 剧本转资产：模型只返回结构化字段，出图提示词由代码拼装，保证风格锚定句在每张卡上完全一致。
 - `store.py` — SQLite cache and history with cache keys depending only on business fields. SQLite 缓存与历史，缓存 key 只依赖业务字段。
 - `errors.py` — Upstream status codes become actionable Chinese hints; keys and raw upstream responses never reach the UI. 上游状态码转成可操作的中文提示，key 与原始报文不会透出到界面。
 - `static/` — Single-page front end (vanilla JS/CSS), pluggable views, GPU-friendly motion layer that respects `prefers-reduced-motion`. 单页前端（原生 JS/CSS），可插拔视图，动效层走 GPU 并尊重系统「减少动效」。
@@ -140,6 +183,7 @@ A clean FastAPI service with deliberately simple, auditable components.
 | GET | `/api/options` | Dropdown options, feature flags, backgrounds · 下拉选项、功能开关、背景 |
 | POST | `/api/stream` | Main SSE endpoint: `start → meta → delta×N → done` · 主 SSE 接口 |
 | POST | `/api/rewrite` | Synchronous rewrite · 同步改写 |
+| POST | `/api/breakdown` | Script → asset cards with image prompts and Markdown · 剧本拆解：返回人物模卡 / 场景图 / 道具图 |
 | GET | `/api/history?limit=20` | History list · 历史列表 |
 | GET / DELETE | `/api/history/{id}` | Detail / delete · 详情 / 删除 |
 | DELETE | `/api/history` | Clear history · 清空历史 |

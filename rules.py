@@ -17,6 +17,7 @@ _state: dict = {"mtime": None, "data": None}
 _PUBLIC = {
     "SCENE_TYPES": "scene_types",
     "STYLES": "styles",
+    "STYLE_ANCHORS": "style_anchors",
     "RATIOS": "ratios",
     "DURATIONS": "durations",
     "RATIO_COMPOSITION": "ratio_composition",
@@ -90,6 +91,7 @@ def options() -> dict:
         ],
         "scene_types": list(d["scene_types"].keys()),
         "styles": list(d["styles"].keys()),
+        "style_anchors": d.get("style_anchors", {}),
         "ratios": d["ratios"],
         "durations": d["durations"],
     }

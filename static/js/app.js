@@ -10,11 +10,13 @@ import {
   $, toast, sceneIcon, highlight, copyText,
   downloadText, formatTime, fullText,
 } from './ui.js';
+import { initBreakdown, refreshBreakdown } from './breakdown.js';
+import { initI18n, t, tr, onLangChange, setLang, getLang, LANGS } from './i18n.js';
 
 const EXAMPLES = [
-  { label: '雨夜 · 女孩', text: '一个女孩在雨夜独自哭泣，镜头慢慢推近，霓虹灯映在积水里' },
-  { label: '窗台 · 橘猫', text: '一只橘猫趴在窗台上看雪，午后，屋里很暖' },
-  { label: '产品 · 静物', text: '一瓶香水放在大理石台面上，旁边有一束干花，柔和的自然光' },
+  { label: 'example.chase.label', text: 'example.chase.text' },
+  { label: 'example.cat.label', text: 'example.cat.text' },
+  { label: 'example.product.label', text: 'example.product.text' },
 ];
 
 const AMBIENT_LABELS = {
@@ -83,11 +85,11 @@ function onModelChange() {
 
 function updateChar() {
   const count = $('prompt').value.trim().length;
-  $('charCount').textContent = `${count} 字`;
+  $('charCount').textContent = t('count.chars', { n: count });
   if (count > 0 && count < 18) {
-    $('editorHint').innerHTML = '<span class="soft-hint">再补点主体、动作或环境，会更准</span>';
+    $('editorHint').innerHTML = `<span class="soft-hint">${tr('再补点主体、动作或环境，会更准')}</span>`;
   } else {
-    $('editorHint').textContent = '支持 ⌘ + Enter 快速开始';
+    $('editorHint').textContent = tr('支持 ⌘ + Enter 快速开始');
   }
 }
 
@@ -98,10 +100,10 @@ function renderExamples() {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'chip';
-    button.textContent = example.label;
-    button.title = example.text;
+    button.textContent = t(example.label);
+    button.title = t(example.text);
     button.addEventListener('click', () => {
-      $('prompt').value = example.text;
+      $('prompt').value = t(example.text);
       updateChar();
       $('prompt').focus();
     });
@@ -212,7 +214,7 @@ function renderAmbient(backgrounds) {
     item.addEventListener('click', () => {
       applyAmbient(key);
       closeAmbientPanel();
-      toast(image ? `氛围：${AMBIENT_LABELS[key] || key}` : '已关闭背景氛围');
+      toast(image ? `${t('ambient.label')}：${tr(AMBIENT_LABELS[key] || key)}` : t('toast.ambientOff'));
     });
     list.appendChild(item);
   };
@@ -244,7 +246,7 @@ function renderOverrideMenu(types) {
       state.sceneOverride = value;
       updateOverrideHint();
       closeOverride();
-      toast(value ? `下次按「${value}」改写，点开始改写生效` : '已恢复自动判断');
+      toast(value ? t('toast.override', { v: value }) : t('toast.autoScene'));
     });
     menu.appendChild(button);
   }
@@ -277,8 +279,10 @@ function switchView(name) {
   document.querySelectorAll('.nav-item').forEach((button) => {
     if (!button.dataset.soon) button.classList.toggle('active', button.dataset.view === name);
   });
-  $('crumbCurrent').textContent = name === 'history' ? '历史记录' : '改写';
+  const titles = { rewrite: '改写', breakdown: '剧本拆解', history: '历史记录' };
+  $('crumbCurrent').textContent = titles[name] || '改写';
   if (name === 'history') loadHistory();
+  if (name === 'breakdown' && state.options) initBreakdown(state.options);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -291,7 +295,7 @@ function showResultShell(show) {
 
 function setScene(scene, reason) {
   $('sceneIcon').innerHTML = sceneIcon(scene || '叙事戏');
-  $('sceneName').textContent = scene || '正在判断…';
+  $('sceneName').textContent = scene ? tr(scene) : t('scene.judging');
   $('sceneReason').textContent = reason || '';
 }
 
@@ -390,7 +394,7 @@ function tickStage() {
   const elapsed = Date.now() - state.startedAt;
   let label = STAGES[0][1];
   for (const [ms, text] of STAGES) if (elapsed >= ms) label = text;
-  $('progressText').textContent = state.stageOverride || label;
+  $('progressText').textContent = state.stageOverride || tr(label);
   $('progressTime').textContent = `${(elapsed / 1000).toFixed(1)}s`;
 }
 
@@ -420,7 +424,7 @@ function stopRunning() {
 
 function handleEvent(type, data) {
   if (type === 'start') {
-    if (data.cached) state.stageOverride = '命中本地缓存…';
+    if (data.cached) state.stageOverride = tr('命中本地缓存…');
     return;
   }
   if (type === 'meta') {
@@ -506,7 +510,7 @@ async function submit() {
     }
   } catch (error) {
     if (state.epoch !== epoch) return;   // 已被清空，静默收尾，不再弹提示
-    if (error.name === 'AbortError') toast('已取消这次改写');
+    if (error.name === 'AbortError') toast(t('toast.cancelled'));
     else showNotice(error.message || '改写没能完成，再试一次。');
   } finally {
     // 若期间清空过并又开了新请求，旧请求不能碰新请求的状态和按钮
@@ -526,12 +530,12 @@ async function loadHistory() {
   const list = $('historyList');
   try {
     const { items } = await getHistory(30);
-    $('historyCount').textContent = items.length ? `共 ${items.length} 条` : '';
+    $('historyCount').textContent = items.length ? t('count.records', { n: items.length }) : '';
     list.replaceChildren();
     if (!items.length) {
       const empty = document.createElement('div');
       empty.className = 'history-empty';
-      empty.textContent = '还没有改写记录。写过一次，这里就会留住它。';
+      empty.textContent = t('history.empty');
       list.appendChild(empty);
       return;
     }
@@ -548,20 +552,20 @@ async function loadHistory() {
       sub.className = 'history-sub';
       const tag = document.createElement('span');
       tag.className = 'history-tag';
-      tag.textContent = item.scene || '未完成';
-      const detail = `${formatTime(item.created_at)} · ${item.model} · ${item.cached ? '缓存' : ((item.latency_ms || 0) / 1000).toFixed(1) + 's'}`;
+      tag.textContent = item.scene || t('count.unfinished');
+      const detail = `${formatTime(item.created_at)} · ${item.model} · ${item.cached ? t('count.cached') : ((item.latency_ms || 0) / 1000).toFixed(1) + 's'}`;
       sub.append(tag, document.createTextNode(detail));
       main.append(title, sub);
 
       const remove = document.createElement('button');
       remove.type = 'button';
       remove.className = 'history-del';
-      remove.textContent = '删除';
+      remove.textContent = tr('删除');
       remove.addEventListener('click', async (event) => {
         event.stopPropagation();
         try {
           await deleteHistoryItem(item.id);
-          toast('已删除这条记录');
+          toast(t('toast.deleted'));
           loadHistory();
         } catch (error) { toast(error.message); }
       });
@@ -598,7 +602,7 @@ async function openHistoryItem(id) {
       prompt: detail.result_prompt || '',
       changes: detail.changes || [],
     }, `${formatTime(detail.created_at)} · 历史记录`);
-    toast('已回看这条记录');
+    toast(t('toast.revisited'));
   } catch (error) {
     toast(error.message);
   }
@@ -657,14 +661,14 @@ function bindEvents() {
     if (action === 'copy-all' || action === 'copy-prompt') {
       const text = action === 'copy-all' ? fullText(result) : (result.prompt || '');
       const ok = await copyText(text);
-      toast(ok ? (action === 'copy-all' ? '已复制全文' : '已复制提示词') : '复制没成功，可以选中正文手动复制');
+      toast(ok ? (action === 'copy-all' ? t('toast.copied') : t('toast.copiedPrompt')) : t('toast.copyFailed'));
       return;
     }
     if (action === 'export') {
       const now = new Date();
       const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
       downloadText(`prompt-studio-${stamp}.txt`, fullText(result));
-      toast('已导出 .txt');
+      toast(t('toast.exported'));
       return;
     }
     if (action === 'reuse') {
@@ -673,7 +677,7 @@ function bindEvents() {
       switchView('rewrite');
       $('prompt').focus();
       $('prompt').scrollIntoView({ behavior: 'smooth', block: 'center' });
-      toast('已放回输入框，改几个字再试');
+      toast(t('toast.reuse'));
     }
   });
 
@@ -683,10 +687,10 @@ function bindEvents() {
   });
 
   $('clearHistoryBtn').addEventListener('click', async () => {
-    if (!window.confirm('清空全部历史？这个动作不能撤销。')) return;
+    if (!window.confirm(t('history.confirm'))) return;
     try {
       await clearHistory();
-      toast('历史已清空');
+      toast(t('toast.historyCleared'));
       loadHistory();
     } catch (error) { toast(error.message); }
   });
@@ -704,35 +708,81 @@ function bindEvents() {
 }
 
 async function init() {
+  initI18n();
+  buildLangSwitch();
+  onLangChange(refreshAfterLangChange);
   buildParticles();
   bindEvents();
   updateChar();
   try {
     const [options, health] = await Promise.all([getOptions(), getHealth()]);
     state.options = options;
+    state.health = health;
     fillSelect('model', options.models.map((m) => [m.value, m.label]));
     fillSelect('style', options.styles.map((s) => [s, s]));
     fillSelect('ratio', options.ratios.map((r) => [r, r]));
     fillSelect('duration', options.durations.map((d) => [d, d]));
+    fillSelect('bdStyle', options.styles.map((s) => [s, s]));
     onModelChange();
     renderExamples();
     renderAmbient(options.backgrounds || []);
     renderOverrideMenu(options.scene_types || []);
-    // 演示模式提示：无 key 也能完整体验；文案英文在前、中文在后。
-    // Demo banner: full experience without a key; English first, Chinese second.
-    const banner = $('demoBanner');
-    if (banner) banner.hidden = !health.demo_mode;
-    setStatus(
-      health.demo_mode ? 'warn' : (health.key_configured ? 'ok' : 'bad'),
-      health.demo_mode
-        ? 'Demo mode · 演示模式（离线样例）'
-        : (health.key_configured ? 'Ready · 本地服务已就绪' : 'No API key · 还没配置 API key'),
-    );
+    initBreakdown(options);
+    applyStatus(health);
     if (health.version) $('versionTag').textContent = `v${health.version}`;
   } catch (error) {
-    setStatus('bad', '连不上本地服务');
+    setStatus('bad', t('status.offline'));
     showNotice(`读取配置失败：${error.message}`);
   }
+}
+
+/** 顶部语言切换按钮。 */
+function buildLangSwitch() {
+  const box = $('langSwitch');
+  if (!box) return;
+  box.replaceChildren();
+  LANGS.forEach(([code, label]) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'lang-btn' + (getLang() === code ? ' active' : '');
+    button.textContent = label;
+    button.dataset.lang = code;
+    button.addEventListener('click', () => setLang(code));
+    box.appendChild(button);
+  });
+}
+
+/** 服务状态与演示提示。 */
+function applyStatus(health) {
+  const banner = $('demoBanner');
+  if (banner) banner.hidden = !health.demo_mode;
+  setStatus(
+    health.demo_mode ? 'warn' : (health.key_configured ? 'ok' : 'bad'),
+    health.demo_mode
+      ? t('status.demo')
+      : (health.key_configured ? t('status.ready') : t('status.noKey')),
+  );
+}
+
+/** 切换语言后重建所有由 JS 生成的文案。 */
+function refreshAfterLangChange() {
+  buildLangSwitch();
+  updateChar();
+  renderExamples();
+  if (state.health) applyStatus(state.health);
+  if (state.options) {
+    renderAmbient(state.options.backgrounds || []);
+    renderOverrideMenu(state.options.scene_types || []);
+  }
+  if (state.result) showResultMetaOnly();
+  if ($('view-history').classList.contains('active')) loadHistory();
+  if ($('view-breakdown').classList.contains('active')) refreshBreakdown();
+}
+
+/** 只刷新结果区里由语言决定的文字（正文本身是模型输出，不翻译）。 */
+function showResultMetaOnly() {
+  const scene = $('sceneName').textContent;
+  if (scene && scene !== '—') setScene(state.result?.scene, state.result?.reason);
 }
 
 init();

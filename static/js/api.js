@@ -2,6 +2,8 @@
    流式用 fetch + ReadableStream 读 SSE（EventSource 不支持 POST），
    因此取消、超时、错误处理都能统一走 AbortController。 */
 
+import { t } from './i18n.js';
+
 async function parseJSON(res) {
   try { return await res.json(); } catch { return {}; }
 }
@@ -10,12 +12,22 @@ async function request(path, options = {}) {
   const res = await fetch(path, options);
   const data = await parseJSON(res);
   if (!res.ok) {
-    const error = new Error(data.message || data.error || `请求失败 (${res.status})`);
+    const error = new Error(localized(data, res.status));
     error.code = data.code || 'http';
     error.status = res.status;
     throw error;
   }
   return data;
+}
+
+/** 优先用错误码本地化，服务端文案只作兜底。 */
+function localized(data, status) {
+  const key = data.code ? `error.${data.code}` : '';
+  if (key) {
+    const text = t(key);
+    if (text !== key) return text;
+  }
+  return data.message || data.error || t('error.unknown');
 }
 
 export const getOptions = () => request('/api/options');
@@ -43,7 +55,7 @@ export async function streamRewrite(payload, onEvent, signal) {
 
   if (!res.ok) {
     const data = await parseJSON(res);
-    const error = new Error(data.message || data.error || `请求失败 (${res.status})`);
+    const error = new Error(localized(data, res.status));
     error.code = data.code || 'http';
     error.status = res.status;
     throw error;

@@ -182,3 +182,29 @@ def rewrite_sync(params: dict):
         return parsing.parse_full(content), body.get("usage", {})
     finally:
         release_slot(token)
+
+
+def breakdown_sync(script: str, style: str):
+    """剧本拆解：单次同步调用，返回 (结构化资产, usage)。"""
+    import breakdown
+
+    token = acquire_slot()
+    try:
+        if config.demo_mode():
+            return breakdown.demo_result(script, style), {}
+
+        payload = breakdown.build_payload(script, style)
+        payload["model"] = config.DEEPSEEK_MODEL
+        resp = requests.post(
+            config.DEEPSEEK_BASE + "/chat/completions",
+            headers=_headers(),
+            json=payload,
+            timeout=(10, config.BREAKDOWN_TIMEOUT),
+        )
+        if resp.status_code != 200:
+            raise errors.from_response(resp.status_code, resp.text[:300])
+        body = resp.json()
+        content = body["choices"][0]["message"]["content"]
+        return breakdown.parse(content), body.get("usage", {})
+    finally:
+        release_slot(token)

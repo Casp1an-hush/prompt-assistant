@@ -40,39 +40,41 @@
     </div>
 
     <nav class="nav" aria-label="主导航">
-      <p class="nav-group-title">工作区</p>
+      <p class="nav-group-title" data-i18n="nav.workspace">工作区</p>
       <div class="nav-list" id="navList">
-        <button class="nav-item active" data-view="rewrite" type="button"><span class="nav-dot"></span><span>改写</span></button>
-        <button class="nav-item" data-view="history" type="button"><span class="nav-dot"></span><span>历史记录</span></button>
-        <button class="nav-item soon" data-soon="模板库" type="button"><span class="nav-dot"></span><span>模板库</span><span class="nav-soon">soon</span></button>
-        <button class="nav-item soon" data-soon="收藏" type="button"><span class="nav-dot"></span><span>收藏</span><span class="nav-soon">soon</span></button>
-        <button class="nav-item soon" data-soon="多模型对比" type="button"><span class="nav-dot"></span><span>多模型对比</span><span class="nav-soon">soon</span></button>
+        <button class="nav-item active" data-view="rewrite" type="button"><span class="nav-dot"></span><span data-i18n="nav.rewrite">改写</span></button>
+        <button class="nav-item" data-view="breakdown" type="button"><span class="nav-dot"></span><span data-i18n="nav.breakdown">剧本拆解</span></button>
+        <button class="nav-item" data-view="history" type="button"><span class="nav-dot"></span><span data-i18n="nav.history">历史记录</span></button>
+        <button class="nav-item soon" data-soon="模板库" type="button"><span class="nav-dot"></span><span data-i18n="nav.templates">模板库</span><span class="nav-soon">soon</span></button>
+        <button class="nav-item soon" data-soon="收藏" type="button"><span class="nav-dot"></span><span data-i18n="nav.favorites">收藏</span><span class="nav-soon">soon</span></button>
+        <button class="nav-item soon" data-soon="多模型对比" type="button"><span class="nav-dot"></span><span data-i18n="nav.compare">多模型对比</span><span class="nav-soon">soon</span></button>
       </div>
-      <p class="nav-group-title nav-group-title--second">设置</p>
+      <p class="nav-group-title nav-group-title--second" data-i18n="nav.settings">设置</p>
       <div class="nav-list">
-        <button class="nav-item soon" data-soon="规则与偏好" type="button"><span class="nav-dot"></span><span>规则与偏好</span><span class="nav-soon">soon</span></button>
+        <button class="nav-item soon" data-soon="规则与偏好" type="button"><span class="nav-dot"></span><span data-i18n="nav.rules">规则与偏好</span><span class="nav-soon">soon</span></button>
       </div>
     </nav>
 
     <div class="sidebar-foot">
-      <div class="status-line"><span class="status-led" id="statusLed"></span><span id="statusText">正在连接…</span></div>
-      <p class="foot-note">内容留在本地，不上传。</p>
+      <div class="status-line"><span class="status-led" id="statusLed"></span><span id="statusText" data-i18n="status.connecting">正在连接…</span></div>
+      <p class="foot-note" data-i18n="foot.local">内容留在本地，不上传。</p>
     </div>
   </aside>
 
   <div class="main">
     <header class="topbar">
-      <div class="crumb"><span>工作区</span><span class="crumb-sep">/</span><span id="crumbCurrent">改写</span></div>
+      <div class="crumb"><span data-i18n="nav.workspace">工作区</span><span class="crumb-sep">/</span><span id="crumbCurrent">改写</span></div>
       <div class="topbar-right">
+        <div class="lang-switch" id="langSwitch" role="group" aria-label="Language"></div>
         <div class="ambient-wrap">
           <button class="ambient-toggle" id="ambientToggle" type="button" aria-expanded="false">
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="8"/><path d="M12 4v16"/></svg>
-            氛围 <span id="ambientLabel">关</span>
+            <span data-i18n="ambient.label">氛围</span> <span id="ambientLabel">关</span>
           </button>
           <div class="ambient-panel" id="ambientPanel" hidden>
-            <p class="ambient-title">背景氛围</p>
+            <p class="ambient-title" data-i18n="ambient.title">背景氛围</p>
             <div class="ambient-list" id="ambientList"></div>
-            <p class="ambient-note">默认关闭，让页面保持安静。</p>
+            <p class="ambient-note" data-i18n="ambient.note">默认关闭，让页面保持安静。</p>
           </div>
         </div>
         <span class="version" id="versionTag"></span>
@@ -81,8 +83,7 @@
 
     <main class="content">
       <!-- 视图 01：改写 -->
-      <section class="view active" id="view-rewrite" aria-label="改写">
-        <div class="page-head">
+      <section class="view active" id="view-rewrite" aria-label="改写">        <div class="page-head">
           <div class="head-ornament" aria-hidden="true">
             <svg viewBox="0 0 268 156" width="268" height="156" fill="none" stroke="currentColor" stroke-width="1">
               <circle cx="200" cy="118" r="42" stroke-opacity="0.75"/>
@@ -92,60 +93,60 @@
               <circle class="orb" cx="200" cy="118" r="3" fill="#b3c8bb" fill-opacity="0.42" stroke="none"/>
             </svg>
           </div>
-          <p class="eyebrow">01 — Rewrite</p>
+          <p class="eyebrow" data-i18n="rewrite.eyebrow">01 — Rewrite</p>
           <h1 class="page-title">Prompt Assistant</h1>
-          <p class="page-desc">写下所想，其余由它铺陈</p>
+          <p class="page-desc" data-i18n="rewrite.desc">写下所想，其余由它铺陈</p>
           <p class="demo-banner" id="demoBanner" hidden>
-            <strong>Demo mode</strong> · Offline sample output — no API key needed. Add a DeepSeek key for live rewriting.
-            <span>演示模式 · 当前为离线样例输出，无需 API key；配置 DeepSeek key 即可获得模型实时改写。</span>
+            <strong data-i18n="demo.title">Demo mode</strong>
+            <span data-i18n="demo.text">演示模式 · 当前为离线样例输出，无需 API key；配置 DeepSeek key 即可获得模型实时改写。</span>
           </p>
         </div>
 
         <div class="workspace">
           <section class="panel input-panel">
             <div class="panel-head">
-              <h2 class="panel-title">你的想法</h2>
+              <h2 class="panel-title" data-i18n="input.title">你的想法</h2>
               <span class="panel-hint" id="charCount">0 字</span>
             </div>
 
-            <textarea id="prompt" class="editor" aria-label="待改写的提示词" placeholder="例如：一个女孩在雨夜独自哭泣，镜头慢慢推近，霓虹灯映在积水里…"></textarea>
+            <textarea id="prompt" class="editor" aria-label="待改写的提示词" data-i18n-ph="input.placeholder" placeholder="例如：一个少年在雨夜的天台上追一个黑衣人，镜头越来越快"></textarea>
 
             <div class="editor-foot">
               <span id="editorHint">支持 ⌘ + Enter 快速开始</span>
-              <button class="link-btn" id="clearBtn" type="button">清空</button>
+              <button class="link-btn" id="clearBtn" type="button" data-i18n="input.clear">清空</button>
             </div>
 
             <div class="examples" id="examples" aria-label="示例提示词"></div>
 
             <div class="params">
               <div class="field field--wide">
-                <label for="model">目标模型</label>
+                <label for="model" data-i18n="field.model">目标模型</label>
                 <div class="select-wrap"><select id="model" class="select"></select></div>
                 <span class="field-hint" id="modelHint"></span>
               </div>
               <div class="field">
-                <label for="style">画风</label>
+                <label for="style" data-i18n="field.style">画风</label>
                 <div class="select-wrap"><select id="style" class="select"></select></div>
               </div>
               <div class="field">
-                <label for="ratio">画面比例</label>
+                <label for="ratio" data-i18n="field.ratio">画面比例</label>
                 <div class="select-wrap"><select id="ratio" class="select"></select></div>
               </div>
               <div class="field" id="durationField">
-                <label for="duration">时长（秒）</label>
+                <label for="duration" data-i18n="field.duration">时长（秒）</label>
                 <div class="select-wrap"><select id="duration" class="select"></select></div>
               </div>
             </div>
 
             <div class="actions">
-              <button class="btn-primary" id="goBtn" type="button">开始改写</button>
-              <button class="btn-ghost" id="cancelBtn" type="button" hidden>取消</button>
+              <button class="btn-primary" id="goBtn" type="button" data-i18n="action.start">开始改写</button>
+              <button class="btn-ghost" id="cancelBtn" type="button" hidden data-i18n="action.cancel">取消</button>
               <span class="kbd-hint" id="overrideHint" hidden></span>
             </div>
 
             <div class="progress" id="progress" aria-live="polite">
               <div class="progress-track"></div>
-              <div class="progress-text"><span id="progressText">正在准备…</span><span id="progressTime">0.0s</span></div>
+              <div class="progress-text"><span id="progressText" data-i18n="action.preparing">正在准备…</span><span id="progressTime">0.0s</span></div>
             </div>
             <div class="notice" id="notice" role="alert"></div>
           </section>
@@ -160,36 +161,36 @@
                 <circle cx="100" cy="26" r="7" stroke-opacity="0.20"/>
                 <circle cx="100" cy="26" r="2.6" fill="currentColor" stroke="none"/>
               </svg>
-              <p>改写好的内容，会安静地出现在这里。</p>
+              <p data-i18n="result.empty">改写好的内容，会安静地出现在这里。</p>
             </div>
 
             <div class="result-content" id="resultContent" hidden>
               <div class="scene-bar">
                 <div class="scene-icon" id="sceneIcon" aria-hidden="true"></div>
                 <div class="scene-text">
-                  <div class="scene-label">自动判定的戏份</div>
+                  <div class="scene-label" data-i18n="result.sceneLabel">自动判定的戏份</div>
                   <div class="scene-name" id="sceneName">—</div>
                   <div class="scene-reason" id="sceneReason"></div>
                 </div>
                 <div class="scene-override">
-                  <button class="override-toggle" id="overrideToggle" type="button" aria-expanded="false">换个戏份</button>
+                  <button class="override-toggle" id="overrideToggle" type="button" aria-expanded="false" data-i18n="result.changeScene">换个戏份</button>
                   <div class="override-menu" id="overrideMenu" hidden></div>
                 </div>
-                <button class="info-btn" id="infoBtn" type="button" data-tip="戏份由模型根据你写的内容自动判断，一般不需要自己选；想微调时才用「换个戏份」。">?</button>
+                <button class="info-btn" id="infoBtn" type="button" data-tip="戏份由模型根据你写的内容自动判断，一般不需要自己选；想微调时才用「换个戏份」。" data-i18n-title="result.info">?</button>
               </div>
 
               <div class="result-tools">
                 <button class="tool-btn" data-action="copy-all" type="button" title="复制戏份、提示词与改动说明">
-                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>复制全文
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg><span data-i18n="tools.copyAll">复制全文</span>
                 </button>
                 <button class="tool-btn" data-action="copy-prompt" type="button" title="只复制可直接喂给模型的提示词">
-                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 6h12M8 12h12M8 18h8"/><path d="M3 6h1M3 12h1M3 18h1"/></svg>只复制提示词
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 6h12M8 12h12M8 18h8"/><path d="M3 6h1M3 12h1M3 18h1"/></svg><span data-i18n="tools.copyPrompt">只复制提示词</span>
                 </button>
                 <button class="tool-btn" data-action="export" type="button">
-                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg>导出 .txt
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg><span data-i18n="tools.export">导出 .txt</span>
                 </button>
                 <button class="tool-btn" data-action="reuse" type="button">
-                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 12a8 8 0 1 0 3-6.2M4 4v4h4"/></svg>接着改
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 12a8 8 0 1 0 3-6.2M4 4v4h4"/></svg><span data-i18n="tools.reuse">接着改</span>
                 </button>
                 <span class="result-meta" id="resultMeta"></span>
               </div>
@@ -198,7 +199,7 @@
 
               <div class="changes" id="changes" hidden>
                 <button class="changes-head" id="changesHead" type="button" aria-expanded="true">
-                  <span>改了什么 <span class="changes-count" id="changesCount"></span></span>
+                  <span><span data-i18n="changes.title">改了什么</span> <span class="changes-count" id="changesCount"></span></span>
                   <span class="changes-chevron">⌄</span>
                 </button>
                 <ol class="changes-list" id="changesList"></ol>
@@ -211,15 +212,73 @@
       <!-- 视图 02：历史 -->
       <section class="view" id="view-history" aria-label="历史记录">
         <div class="page-head">
-          <p class="eyebrow">02 — History</p>
-          <h1 class="page-title">写过的，<em>都还在这里</em></h1>
-          <p class="page-desc">每次改写都留在本地。点开一条可以回看完整结果，也能直接接着改。</p>
+          <p class="eyebrow" data-i18n="history.eyebrow">02 — History</p>
+          <h1 class="page-title" data-i18n-html="history.title">写过的，<em>都还在这里</em></h1>
+          <p class="page-desc" data-i18n="history.desc">每次改写都留在本地。点开一条可以回看完整结果，也能直接接着改。</p>
         </div>
         <div class="history-toolbar">
           <span id="historyCount"></span>
-          <button class="link-btn" id="clearHistoryBtn" type="button">清空全部</button>
+          <button class="link-btn" id="clearHistoryBtn" type="button" data-i18n="history.clear">清空全部</button>
         </div>
         <div class="history-list" id="historyList"></div>
+      </section>
+
+      <!-- 视图 03：剧本拆解 -->
+      <section class="view" id="view-breakdown" aria-label="剧本拆解">
+        <div class="page-head">
+          <p class="eyebrow" data-i18n="bd.eyebrow">03 — Breakdown</p>
+          <h1 class="page-title" data-i18n-html="bd.title">把剧本，<em>拆成可以直接开工的资产</em></h1>
+          <p class="page-desc" data-i18n="bd.desc">粘贴按「第X集 X-Y」分好段的剧本，自动列出人物模卡、场景图与道具图，并给出可直接出图的提示词。</p>
+        </div>
+
+        <div class="bd-grid">
+          <section class="panel bd-input">
+            <div class="panel-head">
+              <h2 class="panel-title" data-i18n="bd.inputTitle">剧本原文</h2>
+              <span class="panel-hint" id="bdCount">0 字 · 0 个分场</span>
+            </div>
+
+            <textarea id="bdText" class="editor" data-i18n-ph="bd.placeholder" placeholder="第一集 1-1&#10;【场景】雨夜天台&#10;【人物】林晚、陈默&#10;正文……&#10;&#10;第一集 1-2&#10;……"></textarea>
+
+            <div class="editor-foot">
+              <span data-i18n="bd.formatHint">必须按「第X集 X-Y」分段，单次上限 3 万字</span>
+              <button class="link-btn" id="bdTemplate" type="button" data-i18n="bd.template">插入格式示例</button>
+            </div>
+
+            <div class="params">
+              <div class="field field--wide">
+                <label for="bdStyle" data-i18n="bd.styleLabel">全片画风</label>
+                <div class="select-wrap"><select id="bdStyle" class="select"></select></div>
+                <span class="field-hint" data-i18n="bd.styleHint">所有资产的提示词都会带上同一个风格锚定句</span>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btn-primary" id="bdGo" type="button" data-i18n="bd.start">开始拆解</button>
+              <span class="kbd-hint" id="bdHint"></span>
+            </div>
+
+            <div class="notice" id="bdNotice" role="alert"></div>
+          </section>
+
+          <section class="panel bd-result">
+            <div class="bd-empty" id="bdEmpty">
+              <p data-i18n="bd.empty">拆解结果会出现在这里。</p>
+            </div>
+
+            <div id="bdContent" hidden>
+              <div class="bd-toolbar">
+                <div class="bd-tabs" id="bdTabs">
+                  <button class="bd-tab active" data-tab="characters" type="button"><span data-i18n="bd.tab.characters">人物模卡</span> <span id="bdCountChars">0</span></button>
+                  <button class="bd-tab" data-tab="scenes" type="button"><span data-i18n="bd.tab.scenes">场景图</span> <span id="bdCountScenes">0</span></button>
+                  <button class="bd-tab" data-tab="props" type="button"><span data-i18n="bd.tab.props">道具图</span> <span id="bdCountProps">0</span></button>
+                </div>
+                <button class="tool-btn" id="bdExport" type="button" data-i18n="bd.export">导出 Markdown</button>
+              </div>
+              <div class="bd-cards" id="bdCards"></div>
+            </div>
+          </section>
+        </div>
       </section>
     </main>
   </div>

@@ -762,3 +762,153 @@
   .result-meta { width: 100%; margin-left: 0; }
   .version { display: none; }
 }
+
+/* ---------- 剧本拆解 ---------- */
+
+.bd-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--s4);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .bd-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+.bd-input .editor { min-height: 320px; }
+
+.bd-result { min-height: 420px; display: flex; flex-direction: column; }
+
+.bd-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-3);
+  font-size: 14px;
+}
+
+.bd-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin-bottom: var(--s4);
+  flex-wrap: wrap;
+}
+
+.bd-tabs { display: flex; gap: 6px; }
+
+.bd-tab {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text-3);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.bd-tab:hover { color: var(--text-2); }
+
+.bd-tab.active {
+  color: var(--ink, var(--text));
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.bd-tab span { opacity: .65; margin-left: 4px; }
+
+.bd-cards { display: flex; flex-direction: column; gap: var(--s3); }
+
+.bd-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--s3);
+  background: var(--well);
+}
+
+.bd-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s2);
+  margin-bottom: var(--s2);
+}
+
+.bd-card-title { font-weight: 700; font-size: 15px; }
+
+.bd-card-label {
+  font-size: 11px;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 1px 8px;
+  white-space: nowrap;
+}
+
+.bd-card dl { margin: 0; font-size: 13px; line-height: 1.7; }
+
+.bd-card dt {
+  color: var(--text-3);
+  font-size: 11px;
+  letter-spacing: .04em;
+  margin-top: 6px;
+}
+
+.bd-card dd { margin: 0; color: var(--text-2); }
+
+.bd-prompt {
+  margin-top: var(--s3);
+  padding-top: var(--s3);
+  border-top: 1px dashed var(--line);
+}
+
+.bd-prompt pre {
+  font-size: 12px;
+  line-height: 1.65;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text-2);
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.bd-prompt-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.bd-prompt-bar span { font-size: 11px; color: var(--text-3); letter-spacing: .04em; }
+
+/* ---------- 语言切换 ---------- */
+
+.lang-switch {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.lang-btn {
+  border: 0;
+  background: transparent;
+  color: var(--text-3);
+  font-size: 12px;
+  padding: 4px 9px;
+  cursor: pointer;
+  transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+
+.lang-btn:hover { color: var(--text-2); }
+
+.lang-btn.active {
+  color: var(--text);
+  background: var(--accent-soft);
+}

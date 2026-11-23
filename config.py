@@ -31,7 +31,7 @@ STATIC_DIR = ROOT / "static"
 
 # 版本号的唯一来源；app.py、/api/health 与页面角标都读这里
 # Single source of truth for the version; read by app.py, /api/health and the page badge.
-VERSION = "0.1.3"
+VERSION = "0.2.0"
 
 # 显式指定路径，避免从别的目录启动时读不到 .env
 load_dotenv(ROOT / ".env")
@@ -41,6 +41,8 @@ DEEPSEEK_MODEL = os.environ.get("DEEPSEEK_MODEL", "deepseek-chat")
 
 # 单次上游调用超时（秒）
 REQUEST_TIMEOUT = float(os.environ.get("REQUEST_TIMEOUT", "90"))
+# 剧本拆解要读整本，给它更长的超时
+BREAKDOWN_TIMEOUT = float(os.environ.get("BREAKDOWN_TIMEOUT", "240"))
 # 同时最多处理几个改写请求，防止 key 被误刷
 MAX_CONCURRENCY = max(1, int(os.environ.get("MAX_CONCURRENCY", "2")))
 # 结果缓存有效期（秒），0 = 关闭缓存
