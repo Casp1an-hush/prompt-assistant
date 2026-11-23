@@ -134,6 +134,7 @@
   animation: led-pulse 3.2s ease-in-out infinite;
 }
 .status-led.bad { background: var(--danger); }
+.status-led.warn { background: #e9b54c; box-shadow: 0 0 0 3px rgba(233, 181, 76, .12); }
 .foot-note { margin: 8px 0 0; color: var(--text-3); font-size: 11.5px; }
 
 /* ---------- 顶栏 ---------- */
@@ -237,6 +238,21 @@
 }
 .page-title em { font-style: normal; color: var(--warm); }
 .page-desc { margin: 0; max-width: 620px; color: var(--text-2); font-size: 14.5px; line-height: 1.9; }
+
+/* Demo mode banner / 演示模式提示条：英文在前，中文在后 */
+.demo-banner {
+  margin: 14px 0 0;
+  max-width: 620px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 190, 90, .34);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 190, 90, .08);
+  color: var(--text-2);
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+.demo-banner strong { color: var(--accent, #d99b62); }
+.demo-banner span { display: block; margin-top: 2px; opacity: .82; }
 
 .workspace {
   display: grid;

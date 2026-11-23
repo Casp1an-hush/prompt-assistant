@@ -30,7 +30,8 @@ LOG_DIR = ROOT / "logs"
 STATIC_DIR = ROOT / "static"
 
 # 版本号的唯一来源；app.py、/api/health 与页面角标都读这里
-VERSION = "0.1.1"
+# Single source of truth for the version; read by app.py, /api/health and the page badge.
+VERSION = "0.1.2"
 
 # 显式指定路径，避免从别的目录启动时读不到 .env
 load_dotenv(ROOT / ".env")
@@ -50,6 +51,18 @@ DEV_MODE = os.environ.get("DEV_MODE", "0") == "1"
 
 def api_key() -> str:
     return os.environ.get("DEEPSEEK_API_KEY", "").strip()
+
+
+# Demo mode (offline, no key): opt-in with DEMO_MODE=1, or automatic when no key is set.
+# 演示模式（离线、无需 key）：DEMO_MODE=1 显式开启；未配置 key 时自动开启。
+# This lets a reviewer experience the full product without a personal API key.
+# 这样没有自己 API key 的评委也能完整体验产品。
+DEMO_MODE = os.environ.get("DEMO_MODE", "0") == "1"
+
+
+def demo_mode() -> bool:
+    """Whether to serve the offline demo / 是否走离线演示路径。"""
+    return DEMO_MODE or not api_key()
 
 
 def ensure_dirs() -> None:

@@ -100,6 +100,7 @@ def health():
         "dev_mode": config.DEV_MODE,
         "rules_loaded": len(rules.MODELS),
         "key_configured": bool(config.api_key()),
+        "demo_mode": config.demo_mode(),          # 无 key 时为离线演示模式 / offline demo when no key
         "active_requests": llm.active_slots(),   # 当前占用的并发名额
     }
 

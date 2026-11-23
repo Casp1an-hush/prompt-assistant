@@ -718,9 +718,15 @@ async function init() {
     renderExamples();
     renderAmbient(options.backgrounds || []);
     renderOverrideMenu(options.scene_types || []);
+    // 演示模式提示：无 key 也能完整体验；文案英文在前、中文在后。
+    // Demo banner: full experience without a key; English first, Chinese second.
+    const banner = $('demoBanner');
+    if (banner) banner.hidden = !health.demo_mode;
     setStatus(
-      health.key_configured ? 'ok' : 'bad',
-      health.key_configured ? '本地服务已就绪' : '还没配置 API key',
+      health.demo_mode ? 'warn' : (health.key_configured ? 'ok' : 'bad'),
+      health.demo_mode
+        ? 'Demo mode · 演示模式（离线样例）'
+        : (health.key_configured ? 'Ready · 本地服务已就绪' : 'No API key · 还没配置 API key'),
     );
     if (health.version) $('versionTag').textContent = `v${health.version}`;
   } catch (error) {

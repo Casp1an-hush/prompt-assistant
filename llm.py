@@ -14,6 +14,7 @@ import uuid
 import requests
 
 import config
+import demo
 import errors
 import parsing
 import rules
@@ -132,19 +133,27 @@ def rewrite_stream_events(params: dict, token: str | None = None):
     token = token or acquire_slot()
     try:
         parser = parsing.SegmentParser()
-        with requests.post(
-            config.DEEPSEEK_BASE + "/chat/completions",
-            headers=_headers(),
-            json=_payload(_system(params), params["prompt"], True),
-            stream=True,
-            timeout=(10, config.REQUEST_TIMEOUT),
-        ) as resp:
-            if resp.status_code != 200:
-                raise errors.from_response(resp.status_code, resp.text[:300])
-            for text in _iter_sse(resp):
-                touch_slot(token)
+        if config.demo_mode():
+            # 离线演示：复用同一套解析器，保证流式事件与真实模式逐字一致。
+            # Offline demo: reuse the same parser so streaming events are byte-for-byte
+            # identical to the real path.
+            for text in demo.stream_text(params):
                 for event in parser.feed(text):
                     yield event
+        else:
+            with requests.post(
+                config.DEEPSEEK_BASE + "/chat/completions",
+                headers=_headers(),
+                json=_payload(_system(params), params["prompt"], True),
+                stream=True,
+                timeout=(10, config.REQUEST_TIMEOUT),
+            ) as resp:
+                if resp.status_code != 200:
+                    raise errors.from_response(resp.status_code, resp.text[:300])
+                for text in _iter_sse(resp):
+                    touch_slot(token)
+                    for event in parser.feed(text):
+                        yield event
         for event in parser.finish():
             yield event
     finally:
@@ -155,6 +164,11 @@ def rewrite_sync(params: dict):
     """同步：兼容旧调用方，返回 (结构化结果, usage)。"""
     token = acquire_slot()
     try:
+        if config.demo_mode():
+            # 离线演示：整段构造后走同一解析器；usage 留空表示未消耗真实 token。
+            # Offline demo: build the full text through the same parser; empty usage
+            # signals that no real tokens were consumed.
+            return parsing.parse_full("".join(demo.stream_text(params))), {}
         resp = requests.post(
             config.DEEPSEEK_BASE + "/chat/completions",
             headers=_headers(),
