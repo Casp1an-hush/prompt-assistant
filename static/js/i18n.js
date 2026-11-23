@@ -140,9 +140,9 @@ const ENTRIES = {
   'bd.promptLabel': ['出图提示词', '出圖提示詞', 'Image prompt'],
   'bd.copy': ['复制', '複製', 'Copy'],
   'bd.placeholder': [
-    '第一集\n1-1\n【场景】雨夜天台\n【人物】林晚、陈默\n正文……\n1-2\n正文……\n1-3\n正文……',
-    '第一集\n1-1\n【場景】雨夜天台\n【人物】林晚、陳默\n正文……\n1-2\n正文……\n1-3\n正文……',
-    'Episode 1\n1-1\n[Scene] rooftop, rainy night\n[Cast] Lin Wan, Chen Mo\nbody text…\n1-2\nbody text…',
+    '第一集\n1-1\n雨夜，老城区天台。\n林晚推门冲上天台，雨水顺着湿透的短发往下淌……\n1-2\n陈默回过头，露出左眉一道旧疤……',
+    '第一集\n1-1\n雨夜，老城區天台。\n林晚推門衝上天台，雨水順著濕透的短髮往下淌……\n1-2\n陳默回過頭，露出左眉一道舊疤……',
+    'Episode 1\n1-1\nRainy night, an old rooftop.\nLin Wan bursts through the door, soaked…\n1-2\nChen Mo turns, an old scar above one brow…',
   ],
 
   /* 戏份名（模型输出的是中文类型名，界面按语言显示） */
