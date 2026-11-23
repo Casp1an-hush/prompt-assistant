@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. Format follows Keep a Changelog; versions follow Semantic Versioning.
 本项目的所有重要变更都记录于此。格式遵循 Keep a Changelog，版本号遵循语义化版本。
 
+## v0.1.3 — 2026-11-24
+
+- **Demo uses the official vocabulary / 演示模式改用正式词表** — The offline demo previously invented its own scene labels (情绪戏 / 日常切片 / 产品静物) and style names (真人 / 水墨 / 像素), none of which exist in `rules_data.json`, so demo output contradicted the documented six scene types. Demo inference now picks from `rules.SCENE_TYPES` with 叙事戏 as the default, and style labels follow `rules.STYLES`. 离线演示此前另造了戏份与画风名称，与 `rules_data.json` 中的正式词表不一致；现改为直接使用正式六类戏份与四种画风。
+- **Cleaner demo output / 演示输出更干净** — The demo caveat no longer sits inside the copyable prompt (it stays in the changes list and the UI notice), and the storyboard follows the requested duration instead of always showing four seconds. 演示说明不再混入可复制的正文（保留在改动列表与界面提示中）；分镜段数跟随所选时长，不再固定为 4 秒。
+- **AI collaboration statement / AI 协作声明** — README now documents the human–AI division of work and the origin of the rewriting rules. README 新增人机分工与规则来源说明。
+- **Version bump / 版本更新** — `VERSION` set to `0.1.3`. 版本号升至 `0.1.3`。
+- **Tests / 测试** — 57 passing, including a guard that demo labels are a subset of the official vocabulary. 57 项通过，含"演示词表必须是正式词表子集"的回归测试。
+
 ## v0.1.2 — 2026-11-23
 
 - **Demo mode (no API key needed) / 演示模式（无需 API key）** — Without a DeepSeek key the app now serves a complete offline sample through the same four-section parser and SSE pipeline, so reviewers can experience streaming, scene inference, storyboard and changes without signing up. Added `DEMO_MODE` config, a bilingual banner, an offline generator (`demo.py`), and 4 tests. 未配置 DeepSeek key 时，应用通过同一套四段解析器与 SSE 链路输出完整离线样例，评委无需注册即可体验流式、戏份判定、分镜与改动说明。新增 `DEMO_MODE` 配置、双语提示条、离线生成器与 4 项测试。

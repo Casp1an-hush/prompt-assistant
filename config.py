@@ -31,7 +31,7 @@ STATIC_DIR = ROOT / "static"
 
 # 版本号的唯一来源；app.py、/api/health 与页面角标都读这里
 # Single source of truth for the version; read by app.py, /api/health and the page badge.
-VERSION = "0.1.2"
+VERSION = "0.1.3"
 
 # 显式指定路径，避免从别的目录启动时读不到 .env
 load_dotenv(ROOT / ".env")
