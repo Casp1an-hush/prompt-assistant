@@ -32,10 +32,10 @@ function localized(data, status) {
 
 export const getOptions = () => request('/api/options');
 export const getHealth = () => request('/api/health');
-export const getHistory = (limit = 30) => request(`/api/history?limit=${limit}`);
+export const getHistory = (limit = 30, kind = '') => request(`/api/history?limit=${limit}${kind ? `&kind=${encodeURIComponent(kind)}` : ''}`);
 export const getHistoryItem = (id) => request(`/api/history/${encodeURIComponent(id)}`);
 export const deleteHistoryItem = (id) => request(`/api/history/${encodeURIComponent(id)}`, { method: 'DELETE' });
-export const clearHistory = () => request('/api/history', { method: 'DELETE' });
+export const clearHistory = (kind = '') => request(`/api/history${kind ? `?kind=${encodeURIComponent(kind)}` : ''}`, { method: 'DELETE' });
 
 export const rewriteSync = (payload, signal) => request('/api/rewrite', {
   method: 'POST',

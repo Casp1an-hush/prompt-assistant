@@ -12,6 +12,7 @@ All notable changes to this project are documented here. Format follows Keep a C
 - **Markdown export / 导出** — One click turns the result into an asset sheet for the art team. 一键导出可直接交给美术的资产清单。
 - **Trilingual interface / 三语界面** — The whole UI can be switched between Simplified Chinese, Traditional Chinese and English from the top bar; the choice is remembered. Static copy uses `data-i18n` attributes, dynamic copy goes through a lookup table, and server errors carry codes so the message is rendered in the current language. 顶部可切换简体 / 繁體 / English，选择会被记住；静态文案用 `data-i18n` 标注、动态文案走查表、服务端错误返回 code 由前端按语言渲染。
 - **Name chips and editable prompts / 名字按钮与可编辑提示词** — After a breakdown, each card is reachable from a row of name buttons, so you pick the asset instead of scrolling. The image prompt itself is editable in place; edits are marked, can be reset, and are what the copy button and the Markdown export use. 拆解后上方是一排名字按钮，点谁看谁，不用往下翻；出图提示词可直接编辑，会标记「已修改」并可恢复原文，复制与导出用的都是改后的版本。
+- **History split by kind / 历史记录按类型分区** — Rewrites and breakdowns are now recorded and listed separately, each with its own tab and its own clear action. Breakdown entries show the style and the asset counts, and opening one puts the script back on the breakdown page. 改写与拆解分别记录、分标签展示，清空也只清当前分区；拆解记录显示画风与资产数量，点开可把剧本回填到拆解页。
 - **Version bump / 版本更新** — `VERSION` set to `0.2.0`. 版本号升至 `0.2.0`。
 - **Tests / 测试** — 70 passing, including the breakdown parser, the anchor uniqueness and an assertion that demo labels stay inside the official vocabulary. 70 项通过，含拆解解析、锚定句互不相同、演示词表属于正式词表等断言。
 

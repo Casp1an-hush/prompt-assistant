@@ -45,6 +45,7 @@ const state = {
   startedAt: 0,
   stageTimer: null,
   ambient: 'off',
+  historyKind: 'rewrite',
   epoch: 0,            // 每次清空 +1，用于让在途的流式事件作废
   streamError: '',     // 本次流收到的真实错误，别被笼统提示盖掉
 };
@@ -526,10 +527,34 @@ async function submit() {
 
 /* ---------------------------------------------------------------- 历史 */
 
+
+/** 拆解记录的一行摘要：N 个人物 / N 场景 / N 道具。 */
+function breakdownSummary(item) {
+  try {
+    const counts = JSON.parse(item.changes_json || '{}');
+    return t('history.counts', {
+      c: counts.characters || 0,
+      s: counts.scenes || 0,
+      p: counts.props || 0,
+    });
+  } catch {
+    return t('history.breakdown');
+  }
+}
+
+/** 历史分区切换。 */
+function switchHistory(kind) {
+  state.historyKind = kind;
+  document.querySelectorAll('.history-tab').forEach((tab) => {
+    tab.classList.toggle('active', tab.dataset.kind === kind);
+  });
+  loadHistory();
+}
+
 async function loadHistory() {
   const list = $('historyList');
   try {
-    const { items } = await getHistory(30);
+    const { items } = await getHistory(30, state.historyKind);
     $('historyCount').textContent = items.length ? t('count.records', { n: items.length }) : '';
     list.replaceChildren();
     if (!items.length) {
@@ -552,9 +577,15 @@ async function loadHistory() {
       sub.className = 'history-sub';
       const tag = document.createElement('span');
       tag.className = 'history-tag';
-      tag.textContent = item.scene || t('count.unfinished');
-      const detail = `${formatTime(item.created_at)} · ${item.model} · ${item.cached ? t('count.cached') : ((item.latency_ms || 0) / 1000).toFixed(1) + 's'}`;
-      sub.append(tag, document.createTextNode(detail));
+      if (item.kind === 'breakdown') {
+        tag.textContent = item.model || '—';
+        sub.append(tag, document.createTextNode(
+          `${formatTime(item.created_at)} · ${breakdownSummary(item)}`));
+      } else {
+        tag.textContent = item.scene || t('count.unfinished');
+        const detail = `${formatTime(item.created_at)} · ${item.model} · ${item.cached ? t('count.cached') : ((item.latency_ms || 0) / 1000).toFixed(1) + 's'}`;
+        sub.append(tag, document.createTextNode(detail));
+      }
       main.append(title, sub);
 
       const remove = document.createElement('button');
@@ -586,6 +617,16 @@ async function loadHistory() {
 async function openHistoryItem(id) {
   try {
     const detail = await getHistoryItem(id);
+    if (detail.kind === 'breakdown') {
+      // 拆解记录：把剧本放回拆解页，方便重新跑一次
+      switchView('breakdown');
+      $('bdText').value = detail.input || '';
+      if (detail.style) $('bdStyle').value = detail.style;
+      refreshBreakdown();
+      $('bdText').dispatchEvent(new Event('input'));
+      toast(t('toast.revisited'));
+      return;
+    }
     $('prompt').value = detail.input || '';
     if (detail.model) $('model').value = detail.model;
     if (detail.style) $('style').value = detail.style;
@@ -686,10 +727,14 @@ function bindEvents() {
     $('changesHead').setAttribute('aria-expanded', String(!collapsed));
   });
 
+  document.querySelectorAll('.history-tab').forEach((tab) => {
+    tab.addEventListener('click', () => switchHistory(tab.dataset.kind));
+  });
+
   $('clearHistoryBtn').addEventListener('click', async () => {
     if (!window.confirm(t('history.confirm'))) return;
     try {
-      await clearHistory();
+      await clearHistory(state.historyKind);
       toast(t('toast.historyCleared'));
       loadHistory();
     } catch (error) { toast(error.message); }

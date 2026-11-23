@@ -248,6 +248,24 @@ def breakdown_script(req: BreakdownRequest):
 
     result = breakdown.attach_prompts(result, req.style)
     latency = int((time.time() - started) * 1000)
+
+    counts = {
+        "characters": len(result["characters"]),
+        "scenes": len(result["scenes"]),
+        "props": len(result["props"]),
+    }
+    store.log_request({
+        "id": store.new_id(),
+        "created_at": started,
+        "kind": "breakdown",
+        "model": req.style,
+        "style": req.style,
+        "input": req.text,
+        "changes_json": json.dumps(counts, ensure_ascii=False),
+        "latency_ms": latency,
+        "status": "ok",
+        "cached": 0,
+    })
     log.info(
         "breakdown chars=%d style=%s chars_cards=%d scenes=%d props=%d latency=%dms",
         len(req.text), req.style,
@@ -285,8 +303,8 @@ def breakdown_markdown(req: MarkdownRequest):
 # ---------------------------------------------------------------- 历史
 
 @router.get("/history")
-def history(limit: int = 20):
-    return {"items": store.history(limit)}
+def history(limit: int = 20, kind: str = ""):
+    return {"items": store.history(limit, kind)}
 
 
 @router.get("/history/{item_id}")
@@ -305,5 +323,5 @@ def history_delete(item_id: str):
 
 
 @router.delete("/history")
-def history_clear():
-    return {"deleted": store.history_clear()}
+def history_clear(kind: str = ""):
+    return {"deleted": store.history_clear(kind)}

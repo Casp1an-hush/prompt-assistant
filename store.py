@@ -36,7 +36,8 @@ CREATE TABLE IF NOT EXISTS requests (
     completion_tokens INTEGER,
     status        TEXT,
     error         TEXT,
-    cached        INTEGER DEFAULT 0
+    cached        INTEGER DEFAULT 0,
+    kind          TEXT DEFAULT 'rewrite'
 );
 CREATE INDEX IF NOT EXISTS idx_requests_created ON requests(created_at DESC);
 CREATE TABLE IF NOT EXISTS cache (
@@ -57,6 +58,10 @@ def _connect() -> sqlite3.Connection:
 def init_db() -> None:
     with _lock, closing(_connect()) as conn:
         conn.executescript(_SCHEMA)
+        # 老库补列：kind 用来区分改写记录与拆解记录
+        columns = {row["name"] for row in conn.execute("PRAGMA table_info(requests)")}
+        if "kind" not in columns:
+            conn.execute("ALTER TABLE requests ADD COLUMN kind TEXT DEFAULT 'rewrite'")
         conn.commit()
 
 
@@ -98,7 +103,7 @@ def log_request(record: dict) -> None:
     columns = (
         "id", "created_at", "model", "scene_type", "style", "ratio", "duration",
         "input", "scene", "reason", "result_prompt", "changes_json",
-        "latency_ms", "prompt_tokens", "completion_tokens", "status", "error", "cached",
+        "latency_ms", "prompt_tokens", "completion_tokens", "status", "error", "cached", "kind",
     )
     values = [record.get(c) for c in columns]
     with _lock, closing(_connect()) as conn:
@@ -122,14 +127,22 @@ def _brief(row: sqlite3.Row) -> dict:
         "status": row["status"],
         "cached": bool(row["cached"]),
         "latency_ms": row["latency_ms"],
+        "kind": row["kind"] or "rewrite",
     }
 
 
-def history(limit: int = 20) -> list[dict]:
+def history(limit: int = 20, kind: str = "") -> list[dict]:
+    limit = max(1, min(limit, 100))
     with _lock, closing(_connect()) as conn:
-        rows = conn.execute(
-            "SELECT * FROM requests ORDER BY created_at DESC LIMIT ?", (max(1, min(limit, 100)),)
-        ).fetchall()
+        if kind:
+            rows = conn.execute(
+                "SELECT * FROM requests WHERE COALESCE(kind, 'rewrite') = ? "
+                "ORDER BY created_at DESC LIMIT ?", (kind, limit)
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM requests ORDER BY created_at DESC LIMIT ?", (limit,)
+            ).fetchall()
     return [_brief(r) for r in rows]
 
 
@@ -153,8 +166,11 @@ def history_delete(item_id: str) -> bool:
     return cur.rowcount > 0
 
 
-def history_clear() -> int:
+def history_clear(kind: str = "") -> int:
     with _lock, closing(_connect()) as conn:
-        cur = conn.execute("DELETE FROM requests")
+        if kind:
+            cur = conn.execute("DELETE FROM requests WHERE COALESCE(kind, 'rewrite') = ?", (kind,))
+        else:
+            cur = conn.execute("DELETE FROM requests")
         conn.commit()
     return cur.rowcount

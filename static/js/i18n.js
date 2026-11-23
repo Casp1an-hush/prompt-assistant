@@ -98,6 +98,10 @@ const ENTRIES = {
     'Every rewrite stays local. Open one to revisit it, or pick up where you left off.',
   ],
   'history.clear': ['清空全部', '清空全部', 'Clear all'],
+  'history.tabRewrite': ['改写记录', '改寫記錄', 'Rewrites'],
+  'history.tabBreakdown': ['拆解记录', '拆解記錄', 'Breakdowns'],
+  'history.counts': ['{c} 人物 · {s} 场景 · {p} 道具', '{c} 人物 · {s} 場景 · {p} 道具', '{c} characters · {s} scenes · {p} props'],
+  'history.breakdown': ['剧本拆解', '劇本拆解', 'Script breakdown'],
   'history.confirm': ['清空全部历史？这个动作不能撤销。', '清空全部歷史？這個動作不能撤銷。', 'Clear all history? This cannot be undone.'],
   'history.empty': ['还没有改写记录。写过一次，这里就会留住它。', '還沒有改寫記錄。寫過一次，這裡就會留住它。', 'Nothing yet. Write once and it stays here.'],
 

@@ -979,3 +979,22 @@
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
+
+/* 历史分区 */
+.history-tabs { display: flex; gap: 6px; margin-bottom: var(--s3); }
+.history-tab {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text-3);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.history-tab:hover { color: var(--text-2); }
+.history-tab.active {
+  color: var(--text);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}

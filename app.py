@@ -34,6 +34,21 @@ logging.getLogger("studio").setLevel(logging.INFO)
 store.init_db()
 
 app = FastAPI(title="Prompt Assistant", version=config.VERSION)
+
+
+@app.middleware("http")
+async def no_cache_static(request, call_next):
+    """本地静态资源不缓存：改完代码刷新即生效，不会被浏览器旧副本盖住。
+
+    A local tool is edited constantly; serving JS/CSS from cache after an
+    update is more confusing than the few milliseconds it saves.
+    """
+    response = await call_next(request)
+    if request.url.path.startswith("/static/") or request.url.path == "/":
+        response.headers["Cache-Control"] = "no-cache, must-revalidate"
+    return response
+
+
 app.include_router(router)
 app.mount("/static", StaticFiles(directory=str(config.STATIC_DIR)), name="static")
 
