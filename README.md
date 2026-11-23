@@ -1,6 +1,6 @@
 # Prompt Assistant
 
-[![tests](https://github.com/zjy053231-crypto/prompt-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/zjy053231-crypto/prompt-assistant/actions/workflows/ci.yml) [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![macOS](https://img.shields.io/badge/macOS-supported-1f6feb)](#macos) [![Windows](https://img.shields.io/badge/Windows-supported-0078D4)](#windows)
+[![tests](https://github.com/Casp1an-hush/prompt-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/Casp1an-hush/prompt-assistant/actions/workflows/ci.yml) [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![macOS](https://img.shields.io/badge/macOS-supported-1f6feb)](#macos) [![Windows](https://img.shields.io/badge/Windows-supported-0078D4)](#windows)
 
 > Before the image — 画面之前 — 畫面之前
 
