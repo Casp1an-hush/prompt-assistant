@@ -17,17 +17,17 @@ import rules
 
 MAX_CHARS = 30000
 
-# 剧本格式（三行一段）：
-#   第一集
-#   1-1
+# 剧本格式：
+#   第一集          ← 集名单独一行（可选，用于给场次编号归属）
+#   1-1             ← 场次号单独一行，格式为「集-场」
 #   （正文）
-#   1-2
+#   1-2             ← 每集场数不固定
 #   （正文）
-# 集名单独一行，场次号单独一行，正文跟在后面。
+# 唯一硬性要求：场次号必须单独占一行。
 _EPISODE_RE = re.compile(r"^\s*第\s*[0-9一二三四五六七八九十百]+\s*集\s*$", re.M)
 _SCENE_RE = re.compile(r"^\s*(\d+)\s*[-－—]\s*(\d+)\s*$", re.M)
 
-SYSTEM = """你是影视与漫剧的美术资产拆解师。用户会给你按「集-场」分段的剧本（集名一行、场次号一行、正文），你要从中抽取所有需要制作的美术资产，输出 JSON。
+SYSTEM = """你是影视与漫剧的美术资产拆解师。用户会给你按场次分段的剧本：场次号「1-1」单独一行，后面跟正文；集名「第一集」单独一行，可有可无，你要从中抽取所有需要制作的美术资产，输出 JSON。
 
 抽取规则：
 1. 人物：剧本通常不会大篇幅描写外貌。你要根据身份、年龄、性格与剧情合理补全，但不得与剧情冲突。
@@ -69,8 +69,7 @@ def validate_script(text: str) -> list:
         problems.append({"code": "too_short"})
     if len(text) > MAX_CHARS:
         problems.append({"code": "too_long", "chars": len(text), "limit": MAX_CHARS})
-    if not _has_episode(text):
-        problems.append({"code": "no_episode"})
+    # 唯一硬性要求：场次号单独一行。集名可有可无，不强制。
     if not _has_scene(text):
         problems.append({"code": "no_scenes"})
     return problems
@@ -84,17 +83,17 @@ def problem_message(problem: dict) -> str:
     if code == "too_long":
         return "文本 {} 字，超过 {} 字上限，请先分成几批再提交。".format(
             problem.get("chars"), problem.get("limit"))
-    if code == "no_episode":
-        return ("没有检测到集标记。剧本需要三行一段：集名一行、场次号一行、正文。例如：\n"
-                "第一集\n1-1\n（正文）\n1-2\n（正文）")
     if code == "no_scenes":
-        return ("没有检测到场次号。每场需要单独一行写「1-1」「1-2」这样的编号。例如：\n"
-                "第一集\n1-1\n（正文）")
+        return ("没有检测到场次号。每个场次需要单独占一行，写成「1-1」「1-2」这样的编号。例如：\n"
+                "第一集\n1-1\n（正文）\n1-2\n（正文）")
     return "剧本格式不正确。"
 
 
 def segments(text: str) -> list:
-    """按出现顺序返回「集 + 场次」标签，例如 ["第一集 1-1", "第一集 1-2"]。"""
+    """按出现顺序返回场次标签，例如 ["第一集 1-1", "1-2", "第二集 2-1"]。
+
+    有集名时带上集名，没有就只返回场次号——不强制要求写集名。
+    """
     labels = []
     episode = ""
     for line in (text or "").splitlines():
@@ -104,7 +103,8 @@ def segments(text: str) -> list:
             continue
         scene = _SCENE_RE.match(stripped)
         if scene:
-            labels.append("{} {}-{}".format(episode, scene.group(1), scene.group(2)).strip())
+            number = "{}-{}".format(scene.group(1), scene.group(2))
+            labels.append("{} {}".format(episode, number).strip())
     return labels
 
 

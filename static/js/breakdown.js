@@ -14,6 +14,9 @@ const TEMPLATE = `第一集
 陈默回过头，兜帽下只露出半张脸。
 陈默：你终于来了。
 
+1-3
+两人隔着天台对视，雨越下越大。
+
 第二集
 2-1
 【场景】旧仓库
@@ -242,7 +245,6 @@ function exportMarkdown() {
 const PROBLEM_KEYS = {
   too_short: 'error.tooShort',
   too_long: 'error.tooLong',
-  no_episode: 'error.no_episode',
   no_scenes: 'error.no_scenes',
 };
 

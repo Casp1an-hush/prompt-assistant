@@ -38,10 +38,10 @@ def test_validate_rejects_short_text():
     assert "too_short" in codes
 
 
-def test_validate_rejects_text_without_episode_or_scene():
+def test_validate_rejects_text_without_scene_numbers():
     text = "这是一个很长但没有分场的段落。" * 5
     codes = [p["code"] for p in breakdown.validate_script(text)]
-    assert "no_episode" in codes and "no_scenes" in codes
+    assert "no_scenes" in codes
 
 
 def test_validate_rejects_oversized_text():
@@ -59,14 +59,25 @@ def test_segments_finds_markers():
 
 
 def test_segments_follow_episode_changes():
-    text = "第一集\n1-1\n正文正文正文\n\n第二集\n2-1\n正文正文"
-    assert breakdown.segments(text) == ["第一集 1-1", "第二集 2-1"]
+    text = "第一集\n1-1\n正文正文正文\n1-2\n正文\n\n第二集\n2-1\n正文正文"
+    assert breakdown.segments(text) == ["第一集 1-1", "第一集 1-2", "第二集 2-1"]
 
 
-def test_validate_rejects_scene_without_episode():
+def test_segments_without_episode_line():
+    assert breakdown.segments("1-1\n正文\n1-2\n正文") == ["1-1", "1-2"]
+
+
+def test_validate_accepts_scenes_without_episode_line():
+    """集名可有可无，场次号必须在单独一行。"""
     text = "1-1\n" + "正文。" * 20
+    assert breakdown.validate_script(text) == []
+
+
+def test_validate_requires_scene_number_on_its_own_line():
+    """场次号混在正文行里不算分段。"""
+    text = "第一集 1-1 林晚冲上天台。" + "正文。" * 20
     codes = [p["code"] for p in breakdown.validate_script(text)]
-    assert "no_episode" in codes and "no_scenes" not in codes
+    assert "no_scenes" in codes
 
 
 def test_parse_accepts_plain_json():
