@@ -228,7 +228,7 @@
         <div class="page-head">
           <p class="eyebrow" data-i18n="bd.eyebrow">03 — Breakdown</p>
           <h1 class="page-title" data-i18n-html="bd.title">把剧本，<em>拆成可以直接开工的资产</em></h1>
-          <p class="page-desc" data-i18n="bd.desc">粘贴按「第X集 X-Y」分好段的剧本，自动列出人物模卡、场景图与道具图，并给出可直接出图的提示词。</p>
+          <p class="page-desc" data-i18n="bd.desc">粘贴按「第一集 / 1-1 / 正文」分好段的剧本，自动列出人物模卡、场景图与道具图，并给出可直接出图的提示词。</p>
         </div>
 
         <div class="bd-grid">
@@ -238,10 +238,10 @@
               <span class="panel-hint" id="bdCount">0 字 · 0 个分场</span>
             </div>
 
-            <textarea id="bdText" class="editor" data-i18n-ph="bd.placeholder" placeholder="第一集 1-1&#10;【场景】雨夜天台&#10;【人物】林晚、陈默&#10;正文……&#10;&#10;第一集 1-2&#10;……"></textarea>
+            <textarea id="bdText" class="editor" data-i18n-ph="bd.placeholder" placeholder="第一集&#10;1-1&#10;【场景】雨夜天台&#10;【人物】林晚、陈默&#10;正文……&#10;1-2&#10;正文……"></textarea>
 
             <div class="editor-foot">
-              <span data-i18n="bd.formatHint">必须按「第X集 X-Y」分段，单次上限 3 万字</span>
+              <span data-i18n="bd.formatHint">集名一行、场次号一行、正文；单次上限 3 万字</span>
               <button class="link-btn" id="bdTemplate" type="button" data-i18n="bd.template">插入格式示例</button>
             </div>
 

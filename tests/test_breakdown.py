@@ -8,11 +8,12 @@ import pytest
 import breakdown
 import rules
 
-SCRIPT = """第一集 1-1
-林晚推门冲上天台，雨水顺着头发往下淌。
+SCRIPT = """第一集
+1-1
+林晚推门冲上天台，雨水顺着头发往下淌，栏杆边站着一个人。
 
-第一集 1-2
-陈默回过头。"""
+1-2
+陈默回过头，说了句话。"""
 
 MODEL_JSON = {
     "characters": [{
@@ -37,14 +38,14 @@ def test_validate_rejects_short_text():
     assert "too_short" in codes
 
 
-def test_validate_rejects_text_without_segments():
+def test_validate_rejects_text_without_episode_or_scene():
     text = "这是一个很长但没有分场的段落。" * 5
     codes = [p["code"] for p in breakdown.validate_script(text)]
-    assert "no_segments" in codes
+    assert "no_episode" in codes and "no_scenes" in codes
 
 
 def test_validate_rejects_oversized_text():
-    text = "第一集 1-1\n" + "台词。" * 12000
+    text = "第一集\n1-1\n" + "台词。" * 12000
     codes = [p["code"] for p in breakdown.validate_script(text)]
     assert "too_long" in codes
 
@@ -55,6 +56,17 @@ def test_validate_accepts_segmented_script():
 
 def test_segments_finds_markers():
     assert breakdown.segments(SCRIPT) == ["第一集 1-1", "第一集 1-2"]
+
+
+def test_segments_follow_episode_changes():
+    text = "第一集\n1-1\n正文正文正文\n\n第二集\n2-1\n正文正文"
+    assert breakdown.segments(text) == ["第一集 1-1", "第二集 2-1"]
+
+
+def test_validate_rejects_scene_without_episode():
+    text = "1-1\n" + "正文。" * 20
+    codes = [p["code"] for p in breakdown.validate_script(text)]
+    assert "no_episode" in codes and "no_scenes" not in codes
 
 
 def test_parse_accepts_plain_json():

@@ -126,18 +126,22 @@ The product name "Prompt Assistant" is identical in all three languages. Full co
 Turn a segmented script into production-ready asset cards: character model cards, scene plates and prop plates.
 把分好段的剧本拆成可直接开工的资产：人物模卡、场景图、道具图。
 
-**输入格式 / Input format** — the script must be split into episodes and scenes by hand; the app checks for it and refuses to guess.
+**输入格式 / Input format** — the script must be split by hand into an episode line, a scene-number line and the body; the app checks for it and refuses to guess.
 剧本需要先手动按集、场分段，程序会检查，不会替你猜：
 
 ```
-第一集 1-1
+第一集
+1-1
 【场景】雨夜，老城区天台
 【人物】林晚、陈默
 正文……
 
-第一集 1-2
-……
+1-2
+正文……
 ```
+
+集名单独一行、场次号单独一行、正文跟在后面。缺任何一样都会被拒绝并提示。
+Episode on its own line, scene number on its own line, then the text.
 
 Up to 30,000 characters per run. 单次上限 3 万字。
 

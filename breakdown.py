@@ -17,12 +17,17 @@ import rules
 
 MAX_CHARS = 30000
 
-# 分场标记：第一集 1-1 / 第十二集 12-3 / 第1集 1-1
-_SEGMENT_RE = re.compile(
-    r"第\s*[0-9一二三四五六七八九十百]+\s*集[\s\-—－]*[0-9一二三四五六七八九十]+[\s\-—－]*[0-9]+"
-)
+# 剧本格式（三行一段）：
+#   第一集
+#   1-1
+#   （正文）
+#   1-2
+#   （正文）
+# 集名单独一行，场次号单独一行，正文跟在后面。
+_EPISODE_RE = re.compile(r"^\s*第\s*[0-9一二三四五六七八九十百]+\s*集\s*$", re.M)
+_SCENE_RE = re.compile(r"^\s*(\d+)\s*[-－—]\s*(\d+)\s*$", re.M)
 
-SYSTEM = """你是影视与漫剧的美术资产拆解师。用户会给你按「集-场」分段的剧本，你要从中抽取所有需要制作的美术资产，输出 JSON。
+SYSTEM = """你是影视与漫剧的美术资产拆解师。用户会给你按「集-场」分段的剧本（集名一行、场次号一行、正文），你要从中抽取所有需要制作的美术资产，输出 JSON。
 
 抽取规则：
 1. 人物：剧本通常不会大篇幅描写外貌。你要根据身份、年龄、性格与剧情合理补全，但不得与剧情冲突。
@@ -32,7 +37,7 @@ SYSTEM = """你是影视与漫剧的美术资产拆解师。用户会给你按�
    - 身份转变、受伤战损、成长升级导致外貌或形态变化
    新增卡片依次标为「副状态1」「副状态2」。
    若同一角色的外貌在剧本前半与后半有显著差异，改用「主状态1」「主状态2」。
-3. 每张卡必须写 note，注明这个状态出现在哪些场次，沿用剧本里的编号，例如「第1集 1-1、1-3」。
+3. 每张卡必须写 note，注明这个状态出现在哪些场次，沿用剧本里的编号，例如「第一集 1-1、1-3」。
 4. appearance 要具体到能画出来：身高体型、脸型、五官与骨相特征、肤色。
 5. costume 要具体到：发色发长发型、服装款式、颜色、剪裁、层次叠穿、鞋。
 6. anchors 放 1 到 3 条必须在所有镜头中保持不变的特征。
@@ -64,8 +69,10 @@ def validate_script(text: str) -> list:
         problems.append({"code": "too_short"})
     if len(text) > MAX_CHARS:
         problems.append({"code": "too_long", "chars": len(text), "limit": MAX_CHARS})
-    if not _SEGMENT_RE.search(text):
-        problems.append({"code": "no_segments"})
+    if not _has_episode(text):
+        problems.append({"code": "no_episode"})
+    if not _has_scene(text):
+        problems.append({"code": "no_scenes"})
     return problems
 
 
@@ -77,15 +84,36 @@ def problem_message(problem: dict) -> str:
     if code == "too_long":
         return "文本 {} 字，超过 {} 字上限，请先分成几批再提交。".format(
             problem.get("chars"), problem.get("limit"))
-    if code == "no_segments":
-        return ("没有检测到分场标记。请先按「第X集 X-Y」的格式把剧本分段，例如：\n"
-                "第一集 1-1\n（场景与剧情）\n\n第一集 1-2\n（场景与剧情）")
+    if code == "no_episode":
+        return ("没有检测到集标记。剧本需要三行一段：集名一行、场次号一行、正文。例如：\n"
+                "第一集\n1-1\n（正文）\n1-2\n（正文）")
+    if code == "no_scenes":
+        return ("没有检测到场次号。每场需要单独一行写「1-1」「1-2」这样的编号。例如：\n"
+                "第一集\n1-1\n（正文）")
     return "剧本格式不正确。"
 
 
 def segments(text: str) -> list:
-    """列出剧本里的分场标记，供界面回显。"""
-    return _SEGMENT_RE.findall(text or "")
+    """按出现顺序返回「集 + 场次」标签，例如 ["第一集 1-1", "第一集 1-2"]。"""
+    labels = []
+    episode = ""
+    for line in (text or "").splitlines():
+        stripped = line.strip()
+        if _EPISODE_RE.match(stripped):
+            episode = re.sub(r"\s+", "", stripped)
+            continue
+        scene = _SCENE_RE.match(stripped)
+        if scene:
+            labels.append("{} {}-{}".format(episode, scene.group(1), scene.group(2)).strip())
+    return labels
+
+
+def _has_episode(text: str) -> bool:
+    return bool(_EPISODE_RE.search(text or ""))
+
+
+def _has_scene(text: str) -> bool:
+    return bool(_SCENE_RE.search(text or ""))
 
 
 def build_payload(script: str, style: str) -> dict:

@@ -4,16 +4,18 @@
 import { $, toast, copyText, downloadText } from './ui.js';
 import { t, tr } from './i18n.js';
 
-const TEMPLATE = `第一集 1-1
+const TEMPLATE = `第一集
+1-1
 【场景】雨夜，天台
 【人物】林晚、陈默
 林晚推门冲上天台，雨水顺着头发往下淌。栏杆边站着一个穿黑色长风衣的人。
 
-第一集 1-2
+1-2
 陈默回过头，兜帽下只露出半张脸。
 陈默：你终于来了。
 
-第二集 2-1
+第二集
+2-1
 【场景】旧仓库
 ……`;
 
@@ -63,7 +65,7 @@ function bind() {
 
 function updateCount() {
   const text = $('bdText').value;
-  const segments = (text.match(/第\s*[0-9一二三四五六七八九十百]+\s*集[\s\-—－]*[0-9一二三四五六七八九十]+[\s\-—－]*[0-9]+/g) || []).length;
+  const segments = (text.match(/^\s*\d+\s*[-－—]\s*\d+\s*$/gm) || []).length;
   $('bdCount').textContent = `${t('count.chars', { n: text.trim().length })} · ${t('count.segments', { n: segments })}`;
 }
 
@@ -240,7 +242,8 @@ function exportMarkdown() {
 const PROBLEM_KEYS = {
   too_short: 'error.tooShort',
   too_long: 'error.tooLong',
-  no_segments: 'error.noSegments',
+  no_episode: 'error.no_episode',
+  no_scenes: 'error.no_scenes',
 };
 
 function localizeProblem(data) {
