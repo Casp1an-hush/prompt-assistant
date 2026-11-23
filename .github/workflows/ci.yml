@@ -9,12 +9,14 @@ on:
 
 jobs:
   pytest:
-    runs-on: ubuntu-latest
+    # 固定 runner 版本：ubuntu-latest 迁移到 26.04 后，旧版 Python 的构建
+    # 未必齐全，会让 setup-python 直接失败
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        # 与项目声明的 Python 3.10+ 保持一致，覆盖主流版本
-        python-version: ["3.10", "3.11", "3.12"]
+        # 覆盖声明的最低版本、中间版本，以及开发机实际使用的版本
+        python-version: ["3.10", "3.12", "3.14"]
 
     steps:
       - name: Check out code
