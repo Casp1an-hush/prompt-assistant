@@ -245,6 +245,7 @@ function exportMarkdown() {
 const PROBLEM_KEYS = {
   too_short: 'error.tooShort',
   too_long: 'error.tooLong',
+  no_episode: 'error.no_episode',
   no_scenes: 'error.no_scenes',
 };
 

@@ -108,15 +108,15 @@ const ENTRIES = {
     'Turn a script <em>into assets you can start on</em>',
   ],
   'bd.desc': [
-    '粘贴按场次分好段的剧本（场次号如 1-1、1-2 单独一行），自动列出人物模卡、场景图与道具图，并给出可直接出图的提示词。',
-    '貼上按場次分好段的劇本（場次號如 1-1、1-2 單獨一行），自動列出人物模卡、場景圖與道具圖，並給出可直接出圖的提示詞。',
+    '粘贴分好段的剧本（集名与每个场次号各占一行），自动列出人物模卡、场景图与道具图，并给出可直接出图的提示词。',
+    '貼上分好段的劇本（集名與每個場次號各佔一行），自動列出人物模卡、場景圖與道具圖，並給出可直接出圖的提示詞。',
     'Paste a script split into episode-scene segments; get character cards, scene plates and prop plates with ready-to-use image prompts.',
   ],
   'bd.inputTitle': ['剧本原文', '劇本原文', 'Script'],
   'bd.formatHint': [
-    '场次号（如 1-1、1-2）必须单独一行；单次上限 3 万字',
-    '場次號（如 1-1、1-2）必須單獨一行；單次上限 3 萬字',
-    'Scene numbers like 1-1 and 1-2 must each sit on their own line · up to 30,000 characters',
+    '集名与每个场次号各占一行；每集场数不限；单次上限 3 万字',
+    '集名與每個場次號各佔一行；每集場數不限；單次上限 3 萬字',
+    'Episode line and each scene number on their own lines · any number of scenes · up to 30,000 characters',
   ],
   'bd.template': ['插入格式示例', '插入格式範例', 'Insert format example'],
   'bd.styleLabel': ['全片画风', '全片畫風', 'Style for the whole film'],
@@ -251,6 +251,11 @@ const ENTRIES = {
   'error.tooShort': ['内容太短，至少要有一段完整的剧情。', '內容太短，至少要有一段完整的劇情。', 'Too short — include at least one full scene.'],
   'error.tooLong': ['文本 {n} 字，超过 {m} 字上限，请先分成几批再提交。', '文字 {n} 字，超過 {m} 字上限，請先分成幾批再提交。',
     'The text is {n} characters, over the {m} limit — split it into batches.'],
+  'error.no_episode': [
+    '没有检测到集名。集名要单独占一行，例如「第一集」。\n第一集\n1-1\n（正文）',
+    '沒有偵測到集名。集名要單獨佔一行，例如「第一集」。\n第一集\n1-1\n（正文）',
+    'No episode line found. Put it on its own line, e.g. "Episode 1".\nEpisode 1\n1-1\n(body)',
+  ],
   'error.no_scenes': [
     '没有检测到场次号。每个场次要单独占一行，写成「1-1」「1-2」。例如：\n第一集\n1-1\n（正文）\n1-2\n（正文）',
     '沒有偵測到場次號。每個場次要單獨佔一行，寫成「1-1」「1-2」。例如：\n第一集\n1-1\n（正文）\n1-2\n（正文）',

@@ -140,8 +140,8 @@ Turn a segmented script into production-ready asset cards: character model cards
 正文……
 ```
 
-硬性要求只有一条：**场次号（如 1-1、1-2）必须单独占一行**。集名「第一集」单独一行、可有可无；每集分几场不限，长的可以十几场。
-The only hard rule: scene numbers such as `1-1` must each sit on their own line. The episode line is optional, and an episode can have any number of scenes.
+格式要求：**集名单独一行，每个场次号也单独一行**。每集分几场不限，长的可以十几场。
+Format: the episode line and each scene number (`1-1`, `1-2` …) sit on their own lines. An episode can have any number of scenes.
 
 Up to 30,000 characters per run. 单次上限 3 万字。
 
