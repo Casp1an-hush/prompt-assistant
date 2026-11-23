@@ -7,6 +7,28 @@
 Write what you mean — the rest is composed.
 写下所想，其余由它铺陈。
 
+## Screenshots · 界面预览
+
+Rewrite workspace — from a rough line to a model-ready prompt · 改写工作台：从一句话到可直接出图的提示词
+
+![Rewrite workspace · 改写工作台](docs/screenshots/home.jpg)
+
+Streaming result with inferred scene, storyboard and change log · 流式结果：自动判定的戏份、分镜与改动说明
+
+![Rewrite result · 改写结果](docs/screenshots/result.jpg)
+
+Script breakdown — turn a segmented script into character, scene and prop plates · 剧本拆解：把分段剧本拆成人物模卡、场景图与道具图
+
+![Script breakdown · 剧本拆解](docs/screenshots/breakdown-result.jpg)
+
+Trilingual interface — Simplified / Traditional / English, switchable from the top bar · 三语界面：简 / 繁 / EN 顶栏一键切换
+
+![English interface · 英文界面](docs/screenshots/english.jpg)
+
+Mobile view · 手机端
+
+![Mobile view · 手机端](docs/screenshots/mobile.jpg)
+
 ---
 
 ## English
